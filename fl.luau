@@ -1593,6 +1593,10 @@ local function NewElement(Title, Desc, Parent, Hover)
   function el:Destroy() el.Frame:Destroy() end
   el:SetTitle(Title)
   el:SetDesc(Desc)
+  local lib = getLibrary()
+  if lib and lib.Window and lib.Window.SearchElements then
+    table.insert(lib.Window.SearchElements, { Frame = el.Frame, Title = Title or "", Desc = Desc or "" })
+  end
   if Hover then
     local motor, setT = Creator.SpringMotor(Creator.GetThemeProperty("ElementTransparency"), el.Frame, "BackgroundTransparency", false, true)
     Creator.AddSignal(el.Frame.MouseEnter, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
@@ -1925,7 +1929,10 @@ function TabModule:New(Title, Icon, Parent)
   Creator.AddSignal(tab.Frame.MouseLeave, function() tab.SetTransparency(tab.Selected and 0.89 or 1) end)
   Creator.AddSignal(tab.Frame.MouseButton1Down, function() tab.SetTransparency(0.92) end)
   Creator.AddSignal(tab.Frame.MouseButton1Up, function() tab.SetTransparency(tab.Selected and 0.85 or 0.89) end)
-  Creator.AddSignal(tab.Frame.MouseButton1Click, function() TabModule:SelectTab(idx) end)
+  Creator.AddSignal(tab.Frame.MouseButton1Click, function()
+    if Window.SearchBox then Window.SearchBox.Text = "" end
+    TabModule:SelectTab(idx)
+  end)
   self.Containers[idx] = tab.ContainerFrame
   self.Tabs[idx] = tab
   tab.Container = tab.ContainerFrame
@@ -1993,14 +2000,58 @@ local function BuildWindow(Config)
   local TabFrame = New("Frame", { Size = UDim2.new(0, Window.TabWidth, 1, -66), Position = UDim2.new(0,12,0,54), BackgroundTransparency = 1, ClipsDescendants = true }, { Window.TabHolder, Selector })
   Window.TabDisplay = New("TextLabel", {
     RichText = true, Text = "Tab", TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal), TextSize = 22, TextXAlignment = "Left", TextYAlignment = "Center",
-    Size = UDim2.new(1,-16,0,22), Position = UDim2.fromOffset(Window.TabWidth + 26, 56), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
+    Size = UDim2.new(0,200,0,22), Position = UDim2.fromOffset(Window.TabWidth + 26, 56), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
   })
+  local searchIconId = (Icons and Icons.assets and Icons.assets["lucide-search"]) or "rbxassetid://10734950309"
+  Window.SearchIcon = New("ImageLabel", {
+    Image = searchIconId, Size = UDim2.fromOffset(14,14),
+    Position = UDim2.fromOffset(8,8), BackgroundTransparency = 1, ImageTransparency = 0.4,
+    ThemeTag = { ImageColor3 = "SubText" },
+  })
+  Window.SearchBox = New("TextBox", {
+    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), TextSize = 12, PlaceholderText = "Search...",
+    Text = "", TextColor3 = Color3.fromRGB(200,200,200), PlaceholderColor3 = Color3.fromRGB(120,120,120),
+    TextXAlignment = Enum.TextXAlignment.Left, BackgroundTransparency = 0.92, ClearTextOnFocus = false,
+    Size = UDim2.fromOffset(160,30), AnchorPoint = Vector2.new(1,0),
+    Position = UDim2.new(1, -16, 0, 53),
+    ThemeTag = { TextColor3 = "Text", PlaceholderColor3 = "SubText", BackgroundColor3 = "Element" },
+  }, {
+    New("UICorner", { CornerRadius = UDim.new(0,8) }),
+    New("UIStroke", { Name = "SearchStroke", Transparency = 0.8, ThemeTag = { Color = "ElementBorder" } }),
+    New("UIPadding", { PaddingLeft = UDim.new(0,28) }),
+    Window.SearchIcon,
+  })
+  local searchStroke = Window.SearchBox:FindFirstChild("SearchStroke")
+  Creator.AddSignal(Window.SearchBox.Focused, function()
+    if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.2), { Transparency = 0.3, Color = Creator.GetThemeProperty("Accent") }):Play() end
+    if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.2), { ImageTransparency = 0.1 }):Play() end
+  end)
+  Creator.AddSignal(Window.SearchBox.FocusLost, function()
+    if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.25), { Transparency = 0.8, Color = Creator.GetThemeProperty("ElementBorder") }):Play() end
+    if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.25), { ImageTransparency = 0.4 }):Play() end
+    if Window.SearchBox.Text == "" then
+      for _, entry in next, Window.SearchElements do entry.Frame.Visible = true end
+    end
+  end)
+  Window.SearchElements = {}
+  local function doSearch(query)
+    query = query:lower()
+    for _, entry in next, Window.SearchElements do
+      if query == "" then
+        entry.Frame.Visible = true
+      else
+        local match = entry.Title:lower():find(query, 1, true) or (entry.Desc and entry.Desc:lower():find(query, 1, true))
+        entry.Frame.Visible = not not match
+      end
+    end
+  end
+  Creator.AddSignal(Window.SearchBox:GetPropertyChangedSignal("Text"), function() doSearch(Window.SearchBox.Text) end)
   Window.ContainerHolder = New("Frame", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 })
   Window.ContainerAnim = New("CanvasGroup", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 })
-  Window.ContainerCanvas = New("Frame", { Size = UDim2.new(1, -Window.TabWidth - 32, 1, -90), Position = UDim2.fromOffset(Window.TabWidth + 26, 82), BackgroundTransparency = 1 }, { Window.ContainerAnim, Window.ContainerHolder })
+  Window.ContainerCanvas = New("Frame", { Size = UDim2.new(1, -Window.TabWidth - 32, 1, -90), Position = UDim2.fromOffset(Window.TabWidth + 26, 88), BackgroundTransparency = 1 }, { Window.ContainerAnim, Window.ContainerHolder })
   local OpenScale = New("UIScale", { Scale = 0.92 })
   Window.Root = New("Frame", { BackgroundTransparency = 1, Size = Window.Size, Position = Window.Position, Parent = Config.Parent }, {
-    Window.AcrylicPaint.Frame, Window.TabDisplay, Window.ContainerCanvas, TabFrame, ResizeStartFrame, OpenScale,
+    Window.AcrylicPaint.Frame, Window.TabDisplay, Window.SearchBox, Window.ContainerCanvas, TabFrame, ResizeStartFrame, OpenScale,
   })
   Window.TitleBar = NewTitleBar({ Title = Config.Title, SubTitle = Config.SubTitle, Parent = Window.Root, Window = Window })
   if Lib.UseAcrylic and Window.AcrylicPaint.AddParent then Window.AcrylicPaint.AddParent(Window.Root) end
@@ -2096,7 +2147,10 @@ local function BuildWindow(Config)
   end
   TabModule:Init(Window)
   function Window:AddTab(tabCfg) return TabModule:New(tabCfg.Title, tabCfg.Icon, Window.TabHolder) end
-  function Window:SelectTab(tabIdx) TabModule:SelectTab(tabIdx or 1) end
+  function Window:SelectTab(tabIdx)
+    if self.SearchBox then self.SearchBox.Text = "" end
+    TabModule:SelectTab(tabIdx or 1)
+  end
   Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function() LastVal = TabModule:GetCurrentTabPos() + 16 LastTime = 0 Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos())) end)
   return Window
 end
@@ -2110,7 +2164,7 @@ ProtectGui(GUI)
 Notification:Init(GUI)
 
 local Library = {
-  Version = "1.1.0",
+  Version = "1.3.0",
   OpenFrames = {},
   Options = {},
   Themes = Themes.Names,
