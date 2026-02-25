@@ -1941,7 +1941,7 @@ local function NewTitleBar(cfg)
   bar.CloseButton = BarButton(Assets.Close, UDim2.new(1,-4,0,4), bar.Frame, function()
     Lib.Window:Dialog({ Title = "Close", Content = "Are you sure you want to unload the interface?", Buttons = { { Title = "Yes", Callback = function() Lib:Destroy() end }, { Title = "No" } } })
   end)
-  bar.MaxButton = BarButton(Assets.Max, UDim2.new(1,-40,0,4), bar.Frame, function() cfg.Window.Maximize(not cfg.Window.Maximized) end)
+  bar.MaxButton = BarButton(Assets.Max, UDim2.new(1,-40,0,4), bar.Frame, function() cfg.Window:Maximize(not cfg.Window.Maximized) end)
   bar.MinButton = BarButton(Assets.Min, UDim2.new(1,-80,0,4), bar.Frame, function() Lib.Window:Minimize() end)
   return bar
 end
@@ -2206,7 +2206,6 @@ end
 -- Elements table (AddButton, AddToggle, etc.) - populated below
 local Elements = {}
 Elements.__index = Elements
-Elements.__namecall = function(_, key, ...) return Elements[key](...) end
 Library.Elements = Elements
 
 function Library:CreateWindow(cfg)
