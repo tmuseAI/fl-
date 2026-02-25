@@ -89,5 +89,5 @@ local Window = Fluent:CreateWindow({
 
 ## Files
 
-- `fluent_renew.lua` — library
-- `example.lua` — full demo
+- `fluent_renew.luau` — library
+- `example.luau` — full demo
