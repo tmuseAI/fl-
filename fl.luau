@@ -1595,7 +1595,7 @@ local function NewElement(Title, Desc, Parent, Hover)
   el:SetDesc(Desc)
   local lib = getLibrary()
   if lib and lib.Window and lib.Window.SearchElements then
-    table.insert(lib.Window.SearchElements, { Frame = el.Frame, Title = Title or "", Desc = Desc or "" })
+    table.insert(lib.Window.SearchElements, { Frame = el.Frame, Title = Title or "", Desc = Desc or "", Container = Container })
   end
   if Hover then
     local motor, setT = Creator.SpringMotor(Creator.GetThemeProperty("ElementTransparency"), el.Frame, "BackgroundTransparency", false, true)
@@ -1930,7 +1930,7 @@ function TabModule:New(Title, Icon, Parent)
   Creator.AddSignal(tab.Frame.MouseButton1Down, function() tab.SetTransparency(0.92) end)
   Creator.AddSignal(tab.Frame.MouseButton1Up, function() tab.SetTransparency(tab.Selected and 0.85 or 0.89) end)
   Creator.AddSignal(tab.Frame.MouseButton1Click, function()
-    if Window.SearchBox then Window.SearchBox.Text = "" end
+    if Window.SearchBox and Window.SearchActive then Window.SearchBox.Text = "" end
     TabModule:SelectTab(idx)
   end)
   self.Containers[idx] = tab.ContainerFrame
@@ -1987,12 +1987,8 @@ local function BuildWindow(Config)
   local Resizing, ResizePos = false
   local MinimizeNotif = false
   local OldSizeX, OldSizeY
-  local SelectorGlow = New("ImageLabel", {
-    Image = "rbxassetid://12266946128", AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.5),
-    Size = UDim2.fromOffset(16,20), BackgroundTransparency = 1, ImageTransparency = 0.55,
-    ThemeTag = { ImageColor3 = "Accent" },
-  })
-  local Selector = New("Frame", { Size = UDim2.fromOffset(4,0), BackgroundColor3 = Color3.fromRGB(76,194,255), Position = UDim2.fromOffset(0,17), AnchorPoint = Vector2.new(0,0.5), ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(0,2) }), SelectorGlow })
+  local Selector = New("Frame", { Size = UDim2.fromOffset(4,0), BackgroundColor3 = Config.SelectorColor or Color3.fromRGB(60,60,70), Position = UDim2.fromOffset(0,17), AnchorPoint = Vector2.new(0,0.5) }, { New("UICorner", { CornerRadius = UDim.new(0,2) }) })
+  Window.Selector = Selector
   local ResizeStartFrame = New("Frame", { Size = UDim2.fromOffset(20,20), BackgroundTransparency = 1, Position = UDim2.new(1,-20,1,-20) })
   Window.TabHolder = New("ScrollingFrame", {
     Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, ScrollBarImageTransparency = 1, ScrollBarThickness = 0, BorderSizePixel = 0, CanvasSize = UDim2.fromScale(0,0), ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -2005,41 +2001,51 @@ local function BuildWindow(Config)
   local searchIconId = (Icons and Icons.assets and Icons.assets["lucide-search"]) or "rbxassetid://10734950309"
   Window.SearchIcon = New("ImageLabel", {
     Image = searchIconId, Size = UDim2.fromOffset(14,14),
-    Position = UDim2.fromOffset(8,8), BackgroundTransparency = 1, ImageTransparency = 0.4,
+    AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 8, 0.5, 0),
+    BackgroundTransparency = 1, ImageTransparency = 0.4,
     ThemeTag = { ImageColor3 = "SubText" },
   })
   Window.SearchBox = New("TextBox", {
     FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), TextSize = 12, PlaceholderText = "Search...",
-    Text = "", TextColor3 = Color3.fromRGB(200,200,200), PlaceholderColor3 = Color3.fromRGB(120,120,120),
+    Text = "", PlaceholderColor3 = Color3.fromRGB(100,100,110),
     TextXAlignment = Enum.TextXAlignment.Left, BackgroundTransparency = 0.92, ClearTextOnFocus = false,
     Size = UDim2.fromOffset(160,30), AnchorPoint = Vector2.new(1,0),
     Position = UDim2.new(1, -16, 0, 53),
-    ThemeTag = { TextColor3 = "Text", PlaceholderColor3 = "SubText", BackgroundColor3 = "Element" },
+    ThemeTag = { TextColor3 = "SubText", PlaceholderColor3 = "SubText", BackgroundColor3 = "Element" },
   }, {
     New("UICorner", { CornerRadius = UDim.new(0,8) }),
-    New("UIStroke", { Name = "SearchStroke", Transparency = 0.8, ThemeTag = { Color = "ElementBorder" } }),
+    New("UIStroke", { Name = "SearchStroke", Transparency = 0.85, ThemeTag = { Color = "ElementBorder" } }),
     New("UIPadding", { PaddingLeft = UDim.new(0,28) }),
     Window.SearchIcon,
   })
   local searchStroke = Window.SearchBox:FindFirstChild("SearchStroke")
   Creator.AddSignal(Window.SearchBox.Focused, function()
-    if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.2), { Transparency = 0.3, Color = Creator.GetThemeProperty("Accent") }):Play() end
-    if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.2), { ImageTransparency = 0.1 }):Play() end
+    if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.2), { Transparency = 0.5 }):Play() end
+    if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.2), { ImageTransparency = 0.15 }):Play() end
   end)
   Creator.AddSignal(Window.SearchBox.FocusLost, function()
-    if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.25), { Transparency = 0.8, Color = Creator.GetThemeProperty("ElementBorder") }):Play() end
+    if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.25), { Transparency = 0.85 }):Play() end
     if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.25), { ImageTransparency = 0.4 }):Play() end
-    if Window.SearchBox.Text == "" then
-      for _, entry in next, Window.SearchElements do entry.Frame.Visible = true end
-    end
   end)
   Window.SearchElements = {}
+  Window.SearchActive = false
   local function doSearch(query)
     query = query:lower()
-    for _, entry in next, Window.SearchElements do
-      if query == "" then
-        entry.Frame.Visible = true
-      else
+    if query == "" then
+      if Window.SearchActive then
+        Window.SearchActive = false
+        for _, entry in next, Window.SearchElements do entry.Frame.Visible = true end
+        for _, c in next, TabModule.Containers do c.Visible = false end
+        if TabModule.SelectedTab and TabModule.Containers[TabModule.SelectedTab] then
+          TabModule.Containers[TabModule.SelectedTab].Visible = true
+        end
+      end
+    else
+      if not Window.SearchActive then
+        Window.SearchActive = true
+        for _, c in next, TabModule.Containers do c.Visible = true end
+      end
+      for _, entry in next, Window.SearchElements do
         local match = entry.Title:lower():find(query, 1, true) or (entry.Desc and entry.Desc:lower():find(query, 1, true))
         entry.Frame.Visible = not not match
       end
@@ -2134,6 +2140,11 @@ local function BuildWindow(Config)
     if not MinimizeNotif then MinimizeNotif = true local key = Lib.MinimizeKeybind and Lib.MinimizeKeybind.Value or Lib.MinimizeKey.Name Lib:Notify({ Title = "Interface", Content = "Press " .. key .. " to toggle the interface.", Duration = 6 }) end
   end
   function Window:Destroy() if getLibrary().UseAcrylic and self.AcrylicPaint.Model then self.AcrylicPaint.Model:Destroy() end self.Root:Destroy() end
+  function Window:SetSelectorColor(color)
+    if self.Selector then
+      TweenService:Create(self.Selector, TweenInfo.new(0.3), { BackgroundColor3 = color }):Play()
+    end
+  end
   DialogModule:Init(Window)
   function Window:Dialog(cfg)
     local d = DialogModule:Create()
@@ -2148,7 +2159,7 @@ local function BuildWindow(Config)
   TabModule:Init(Window)
   function Window:AddTab(tabCfg) return TabModule:New(tabCfg.Title, tabCfg.Icon, Window.TabHolder) end
   function Window:SelectTab(tabIdx)
-    if self.SearchBox then self.SearchBox.Text = "" end
+    if self.SearchBox and self.SearchActive then self.SearchBox.Text = "" end
     TabModule:SelectTab(tabIdx or 1)
   end
   Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function() LastVal = TabModule:GetCurrentTabPos() + 16 LastTime = 0 Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos())) end)
@@ -2225,6 +2236,7 @@ function Library:CreateWindow(cfg)
     Title = cfg.Title,
     SubTitle = cfg.SubTitle or "",
     TabWidth = cfg.TabWidth or 160,
+    SelectorColor = cfg.SelectorColor,
   })
   self.Window = Window
   self:SetTheme(cfg.Theme or "Dark")
