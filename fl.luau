@@ -1522,34 +1522,30 @@ function Acrylic.AcrylicPaint()
   local shadow = New("ImageLabel", {
     Image = "rbxassetid://8992230677", ScaleType = "Slice",
     SliceCenter = Rect.new(Vector2.new(99,99), Vector2.new(99,99)),
-    AnchorPoint = Vector2.new(0.5,0.5), Size = UDim2.new(1,120,1,116),
-    Position = UDim2.new(0.5,0,0.5,0), BackgroundTransparency = 1,
-    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 0.55, ZIndex = 0,
+    AnchorPoint = Vector2.new(0.5,0.5), Size = UDim2.new(1,80,1,76),
+    Position = UDim2.new(0.5,0,0.5,4), BackgroundTransparency = 1,
+    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 0.4, ZIndex = 0,
   })
   local bg = New("Frame", {
-    BackgroundTransparency = 0.06, Size = UDim2.fromScale(1,1), Name = "Background",
+    BackgroundTransparency = 0.02, Size = UDim2.fromScale(1,1), Name = "Background",
     ThemeTag = { BackgroundColor3 = "AcrylicMain" },
-  }, { New("UICorner", { CornerRadius = UDim.new(0,10) }) })
+  }, { New("UICorner", { CornerRadius = UDim.new(0,12) }) })
   local gradient = New("Frame", {
-    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.88,
+    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.92,
     Size = UDim2.fromScale(1,1),
   }, {
-    New("UICorner", { CornerRadius = UDim.new(0,10) }),
-    New("UIGradient", { Rotation = 145, ThemeTag = { Color = "AcrylicGradient" } }),
-  })
-  local topHighlight = New("Frame", {
-    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.92,
-    Size = UDim2.new(1,0,0,1), Position = UDim2.fromOffset(0,0),
+    New("UICorner", { CornerRadius = UDim.new(0,12) }),
+    New("UIGradient", { Rotation = 155, ThemeTag = { Color = "AcrylicGradient" } }),
   })
   local border = New("Frame", {
     BackgroundTransparency = 1, Size = UDim2.fromScale(1,1), ZIndex = 2,
   }, {
-    New("UICorner", { CornerRadius = UDim.new(0,10) }),
-    New("UIStroke", { Transparency = 0.7, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }),
+    New("UICorner", { CornerRadius = UDim.new(0,12) }),
+    New("UIStroke", { Transparency = 0.75, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }),
   })
   local frame = New("Frame", {
     Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, BorderSizePixel = 0,
-  }, { shadow, New("UICorner", { CornerRadius = UDim.new(0,10) }), bg, gradient, topHighlight, border })
+  }, { shadow, New("UICorner", { CornerRadius = UDim.new(0,12) }), bg, gradient, border })
   return { Frame = frame, Model = frame, AddParent = function() end, SetVisibility = function() end }
 end
 
@@ -1576,22 +1572,18 @@ local function NewElement(Title, Desc, Parent, Hover)
     AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1,0,0,14), ThemeTag = { TextColor3 = "SubText" },
   })
   el.LabelHolder = New("Frame", {
-    AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Position = UDim2.fromOffset(14,0), Size = UDim2.new(1,-32,0,0),
+    AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Position = UDim2.fromOffset(10,0), Size = UDim2.new(1,-28,0,0),
   }, {
     New("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Center }),
     New("UIPadding", { PaddingBottom = UDim.new(0,13), PaddingTop = UDim.new(0,13) }),
     el.TitleLabel, el.DescLabel,
   })
-  el.AccentBar = New("Frame", {
-    Size = UDim2.new(0,3,1,-8), Position = UDim2.new(0,0,0,4), BackgroundTransparency = 0.3,
-    ThemeTag = { BackgroundColor3 = "Accent" },
-  }, { New("UICorner", { CornerRadius = UDim.new(0,2) }) })
-  el.Border = New("UIStroke", { Transparency = 0.7, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(0,0,0), ThemeTag = { Color = "ElementBorder" } })
+  el.Border = New("UIStroke", { Transparency = 0.75, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "ElementBorder" } })
   el.Frame = New("TextButton", {
-    Size = UDim2.new(1,0,0,0), BackgroundTransparency = Creator.GetThemeProperty("ElementTransparency"), BackgroundColor3 = Color3.fromRGB(130,130,130), Parent = Parent,
-    AutomaticSize = Enum.AutomaticSize.Y, Text = "", LayoutOrder = 7, ClipsDescendants = true,
+    Size = UDim2.new(1,0,0,0), BackgroundTransparency = Creator.GetThemeProperty("ElementTransparency"),
+    Parent = Parent, AutomaticSize = Enum.AutomaticSize.Y, Text = "", LayoutOrder = 7, ClipsDescendants = true,
     ThemeTag = { BackgroundColor3 = "Element", BackgroundTransparency = "ElementTransparency" },
-  }, { New("UICorner", { CornerRadius = UDim.new(0,7) }), el.Border, el.AccentBar, el.LabelHolder })
+  }, { New("UICorner", { CornerRadius = UDim.new(0,10) }), el.Border, el.LabelHolder })
   function el:SetTitle(s) el.TitleLabel.Text = s end
   function el:SetDesc(s)
     if s == nil then s = "" end
@@ -1603,14 +1595,8 @@ local function NewElement(Title, Desc, Parent, Hover)
   el:SetDesc(Desc)
   if Hover then
     local motor, setT = Creator.SpringMotor(Creator.GetThemeProperty("ElementTransparency"), el.Frame, "BackgroundTransparency", false, true)
-    Creator.AddSignal(el.Frame.MouseEnter, function()
-      setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04)
-      TweenService:Create(el.AccentBar, TweenInfo.new(0.2), { BackgroundTransparency = 0 }):Play()
-    end)
-    Creator.AddSignal(el.Frame.MouseLeave, function()
-      setT(Creator.GetThemeProperty("ElementTransparency"))
-      TweenService:Create(el.AccentBar, TweenInfo.new(0.2), { BackgroundTransparency = 0.3 }):Play()
-    end)
+    Creator.AddSignal(el.Frame.MouseEnter, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
+    Creator.AddSignal(el.Frame.MouseLeave, function() setT(Creator.GetThemeProperty("ElementTransparency")) end)
     Creator.AddSignal(el.Frame.MouseButton1Down, function() setT(Creator.GetThemeProperty("ElementTransparency") + Creator.GetThemeProperty("HoverChange")) end)
     Creator.AddSignal(el.Frame.MouseButton1Up, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
   end
@@ -1627,11 +1613,11 @@ local function NewDialogButton(Theme, Parent, DialogCheck)
     TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Center, TextYAlignment = Enum.TextYAlignment.Center,
     BackgroundTransparency = 1, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.fromScale(1,1), ThemeTag = { TextColor3 = "Text" },
   })
-  btn.HoverFrame = New("Frame", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, ThemeTag = { BackgroundColor3 = "Hover" } }, { New("UICorner", { CornerRadius = UDim.new(0,4) }) })
+  btn.HoverFrame = New("Frame", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, ThemeTag = { BackgroundColor3 = "Hover" } }, { New("UICorner", { CornerRadius = UDim.new(0,7) }) })
   btn.Frame = New("TextButton", {
     Size = UDim2.new(0,0,0,32), Parent = Parent, ThemeTag = { BackgroundColor3 = "DialogButton" },
   }, {
-    New("UICorner", { CornerRadius = UDim.new(0,4) }),
+    New("UICorner", { CornerRadius = UDim.new(0,7) }),
     New("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.65, ThemeTag = { Color = "DialogButtonBorder" } }),
     btn.HoverFrame, btn.Title,
   })
@@ -1664,7 +1650,7 @@ local function NewTextbox(Parent, Acrylic)
     Size = UDim2.new(0,0,0,30), BackgroundTransparency = Acrylic and 0.9 or 0, Parent = Parent,
     ThemeTag = { BackgroundColor3 = Acrylic and "Input" or "DialogInput" },
   }, {
-    New("UICorner", { CornerRadius = UDim.new(0,4) }),
+    New("UICorner", { CornerRadius = UDim.new(0,7) }),
     New("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = Acrylic and 0.5 or 0.65, ThemeTag = { Color = Acrylic and "InElementBorder" or "DialogButtonBorder" } }),
     tb.Indicator, tb.Container,
   })
@@ -1705,27 +1691,22 @@ end
 local function NewSection(Title, Parent)
   local New = Creator.New
   local sec = {}
-  sec.Layout = New("UIListLayout", { Padding = UDim.new(0,5) })
-  sec.Container = New("Frame", { Size = UDim2.new(1,0,0,0), Position = UDim2.fromOffset(0,30), BackgroundTransparency = 1 }, { sec.Layout })
-  local accentLine = New("Frame", {
-    Size = UDim2.new(0,28,0,2), Position = UDim2.fromOffset(0,22), BackgroundTransparency = 0.2,
-    ThemeTag = { BackgroundColor3 = "Accent" },
-  }, { New("UICorner", { CornerRadius = UDim.new(0,1) }) })
+  sec.Layout = New("UIListLayout", { Padding = UDim.new(0,4) })
+  sec.Container = New("Frame", { Size = UDim2.new(1,0,0,0), Position = UDim2.fromOffset(0,26), BackgroundTransparency = 1 }, { sec.Layout })
   sec.Root = New("Frame", {
-    BackgroundTransparency = 1, Size = UDim2.new(1,0,0,30), LayoutOrder = 7, Parent = Parent,
+    BackgroundTransparency = 1, Size = UDim2.new(1,0,0,26), LayoutOrder = 7, Parent = Parent,
   }, {
     New("TextLabel", {
-      RichText = true, Text = Title, TextTransparency = 0,
-      FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-      TextSize = 16, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1,-16,0,18), Position = UDim2.fromOffset(0,2),
-      ThemeTag = { TextColor3 = "Text" },
+      RichText = true, Text = Title, TextTransparency = 0.15,
+      FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal),
+      TextSize = 11, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1,-16,0,14), Position = UDim2.fromOffset(2,4),
+      ThemeTag = { TextColor3 = "SubText" },
     }),
-    accentLine,
     sec.Container,
   })
   Creator.AddSignal(sec.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
     sec.Container.Size = UDim2.new(1,0,0,sec.Layout.AbsoluteContentSize.Y)
-    sec.Root.Size = UDim2.new(1,0,0,sec.Layout.AbsoluteContentSize.Y + 32)
+    sec.Root.Size = UDim2.new(1,0,0,sec.Layout.AbsoluteContentSize.Y + 28)
   end)
   return sec
 end
@@ -1774,12 +1755,8 @@ function Notification:New(cfg)
   }, {
     New("ImageLabel", { Image = Assets.Close, Size = UDim2.fromOffset(16,16), Position = UDim2.fromScale(0.5,0.5), AnchorPoint = Vector2.new(0.5,0.5), BackgroundTransparency = 1, ThemeTag = { ImageColor3 = "Text" } }),
   })
-  notif.AccentTop = New("Frame", {
-    Size = UDim2.new(1,-20,0,2), Position = UDim2.new(0,10,0,8), BackgroundTransparency = 0.15,
-    ThemeTag = { BackgroundColor3 = "Accent" },
-  }, { New("UICorner", { CornerRadius = UDim.new(0,1) }) })
   notif.Root = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1,0,1,0), Position = UDim2.fromScale(1,0) }, {
-    notif.AcrylicPaint.Frame, notif.AccentTop, notif.Title, notif.CloseButton, notif.LabelHolder,
+    notif.AcrylicPaint.Frame, notif.Title, notif.CloseButton, notif.LabelHolder,
   })
   if cfg.Content == "" then notif.ContentLabel.Visible = false end
   if cfg.SubContent == "" then notif.SubContentLabel.Visible = false end
@@ -1930,11 +1907,11 @@ function TabModule:New(Title, Icon, Parent)
   if Icon == "" or not Icon then Icon = nil end
   local tab = { Selected = false, Name = Title, Type = "Tab" }
   tab.Frame = New("TextButton", {
-    Size = UDim2.new(1,0,0,34), BackgroundTransparency = 1, Parent = Parent, ThemeTag = { BackgroundColor3 = "Tab" },
+    Size = UDim2.new(1,0,0,32), BackgroundTransparency = 1, Parent = Parent, ThemeTag = { BackgroundColor3 = "Tab" },
   }, {
-    New("UICorner", { CornerRadius = UDim.new(0,6) }),
-    New("TextLabel", { AnchorPoint = Vector2.new(0,0.5), Position = Icon and UDim2.new(0,30,0.5,0) or UDim2.new(0,12,0.5,0), Text = Title, RichText = true, TextColor3 = Color3.fromRGB(255,255,255), TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal), TextSize = 12, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1,-12,1,0), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" } }),
-    New("ImageLabel", { AnchorPoint = Vector2.new(0,0.5), Size = UDim2.fromOffset(16,16), Position = UDim2.new(0,8,0.5,0), BackgroundTransparency = 1, Image = Icon or nil, ThemeTag = { ImageColor3 = "Text" } }),
+    New("UICorner", { CornerRadius = UDim.new(0,8) }),
+    New("TextLabel", { AnchorPoint = Vector2.new(0,0.5), Position = Icon and UDim2.new(0,30,0.5,0) or UDim2.new(0,12,0.5,0), Text = Title, RichText = true, TextColor3 = Color3.fromRGB(255,255,255), TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal), TextSize = 12, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1,-12,1,0), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" } }),
+    New("ImageLabel", { AnchorPoint = Vector2.new(0,0.5), Size = UDim2.fromOffset(15,15), Position = UDim2.new(0,9,0.5,0), BackgroundTransparency = 1, Image = Icon or nil, ThemeTag = { ImageColor3 = "Text" } }),
   })
   local layout = New("UIListLayout", { Padding = UDim.new(0,5), SortOrder = Enum.SortOrder.LayoutOrder })
   tab.ContainerFrame = New("ScrollingFrame", {
@@ -2015,12 +1992,12 @@ local function BuildWindow(Config)
   }, { New("UIListLayout", { Padding = UDim.new(0,4) }) })
   local TabFrame = New("Frame", { Size = UDim2.new(0, Window.TabWidth, 1, -66), Position = UDim2.new(0,12,0,54), BackgroundTransparency = 1, ClipsDescendants = true }, { Window.TabHolder, Selector })
   Window.TabDisplay = New("TextLabel", {
-    RichText = true, Text = "Tab", TextTransparency = 0, FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal), TextSize = 28, TextXAlignment = "Left", TextYAlignment = "Center",
-    Size = UDim2.new(1,-16,0,28), Position = UDim2.fromOffset(Window.TabWidth + 26, 56), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
+    RichText = true, Text = "Tab", TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal), TextSize = 22, TextXAlignment = "Left", TextYAlignment = "Center",
+    Size = UDim2.new(1,-16,0,22), Position = UDim2.fromOffset(Window.TabWidth + 26, 56), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
   })
   Window.ContainerHolder = New("Frame", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 })
   Window.ContainerAnim = New("CanvasGroup", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 })
-  Window.ContainerCanvas = New("Frame", { Size = UDim2.new(1, -Window.TabWidth - 32, 1, -102), Position = UDim2.fromOffset(Window.TabWidth + 26, 90), BackgroundTransparency = 1 }, { Window.ContainerAnim, Window.ContainerHolder })
+  Window.ContainerCanvas = New("Frame", { Size = UDim2.new(1, -Window.TabWidth - 32, 1, -90), Position = UDim2.fromOffset(Window.TabWidth + 26, 82), BackgroundTransparency = 1 }, { Window.ContainerAnim, Window.ContainerHolder })
   local OpenScale = New("UIScale", { Scale = 0.92 })
   Window.Root = New("Frame", { BackgroundTransparency = 1, Size = Window.Size, Position = Window.Position, Parent = Config.Parent }, {
     Window.AcrylicPaint.Frame, Window.TabDisplay, Window.ContainerCanvas, TabFrame, ResizeStartFrame, OpenScale,
@@ -2273,19 +2250,18 @@ local function AddToggle(self, idx, cfg)
   frame.DescLabel.Size = UDim2.new(1, -54, 0, 14)
   t.SetTitle, t.SetDesc = frame.SetTitle, frame.SetDesc
   local New = Creator.New
-  local circle = New("ImageLabel", { AnchorPoint = Vector2.new(0,0.5), Size = UDim2.fromOffset(14,14), Position = UDim2.new(0,2,0.5,0), Image = "http://www.roblox.com/asset/?id=12266946128", ImageTransparency = 0.5, ThemeTag = { ImageColor3 = "ToggleSlider" } })
+  local circle = New("ImageLabel", { AnchorPoint = Vector2.new(0,0.5), Size = UDim2.fromOffset(16,16), Position = UDim2.new(0,2,0.5,0), Image = "http://www.roblox.com/asset/?id=12266946128", ImageTransparency = 0.4, ThemeTag = { ImageColor3 = "ToggleSlider" } })
   local border = New("UIStroke", { Transparency = 0.5, ThemeTag = { Color = "ToggleSlider" } })
-  local slider = New("Frame", { Size = UDim2.fromOffset(36,18), AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-10,0.5,0), Parent = frame.Frame, BackgroundTransparency = 1, ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(0,9) }), border, circle })
+  local slider = New("Frame", { Size = UDim2.fromOffset(40,20), AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-10,0.5,0), Parent = frame.Frame, BackgroundTransparency = 1, ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(1,0) }), border, circle })
   function t:OnChanged(fn) t.Changed = fn fn(t.Value) end
   function t:SetValue(v)
     v = not not v
     t.Value = v
     Creator.OverrideTag(border, { Color = v and "Accent" or "ToggleSlider" })
     Creator.OverrideTag(circle, { ImageColor3 = v and "ToggleToggled" or "ToggleSlider" })
-    local posX = v and 19 or 2
-    TweenService:Create(circle, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = UDim2.new(0, posX, 0.5, 0), Size = UDim2.fromOffset(14,14) }):Play()
+    TweenService:Create(circle, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = UDim2.new(0, v and 22 or 2, 0.5, 0) }):Play()
     TweenService:Create(slider, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { BackgroundTransparency = v and 0 or 1 }):Play()
-    TweenService:Create(circle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { ImageTransparency = v and 0 or 0.5 }):Play()
+    TweenService:Create(circle, TweenInfo.new(0.15), { ImageTransparency = v and 0 or 0.4 }):Play()
     Lib:SafeCallback(t.Callback, t.Value)
     Lib:SafeCallback(t.Changed, t.Value)
   end
@@ -2309,7 +2285,7 @@ local function AddSlider(self, idx, cfg)
   local New = Creator.New
   local dot = New("ImageLabel", { AnchorPoint = Vector2.new(0,0.5), Position = UDim2.new(0,-7,0.5,0), Size = UDim2.fromOffset(14,14), Image = "http://www.roblox.com/asset/?id=12266946128", ThemeTag = { ImageColor3 = "Accent" } })
   local rail = New("Frame", { BackgroundTransparency = 1, Position = UDim2.fromOffset(7,0), Size = UDim2.new(1,-14,1,0) }, { dot })
-  local fill = New("Frame", { Size = UDim2.new(0,0,1,0), ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(1,0) }) })
+  local fill = New("Frame", { Size = UDim2.new(0,0,1,0), ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(1,0) }), New("UIGradient", { Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.15), NumberSequenceKeypoint.new(1,0)}) }) })
   local display = New("TextLabel", { FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), Text = "Value", TextSize = 12, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Right, BackgroundTransparency = 1, Size = UDim2.new(0,100,0,14), Position = UDim2.new(0,-4,0.5,0), AnchorPoint = Vector2.new(1,0.5), ThemeTag = { TextColor3 = "SubText" } })
   New("Frame", { Size = UDim2.new(1,0,0,4), AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-10,0.5,0), BackgroundTransparency = 0.4, Parent = frame.Frame, ThemeTag = { BackgroundColor3 = "SliderRail" } }, {
     New("UICorner", { CornerRadius = UDim.new(1,0) }), New("UISizeConstraint", { MaxSize = Vector2.new(150, math.huge) }), display, fill, rail,
@@ -2376,7 +2352,7 @@ local function AddKeybind(self, idx, cfg)
   local New = Creator.New
   local label = New("TextLabel", { FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal), Text = cfg.Default, TextColor3 = Color3.fromRGB(240,240,240), TextSize = 13, TextXAlignment = Enum.TextXAlignment.Center, Size = UDim2.new(0,0,0,14), Position = UDim2.new(0,0,0.5,0), AnchorPoint = Vector2.new(0,0.5), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" } })
   local btn = New("TextButton", { Size = UDim2.fromOffset(0,30), Position = UDim2.new(1,-10,0.5,0), AnchorPoint = Vector2.new(1,0.5), BackgroundTransparency = 0.9, Parent = frame.Frame, AutomaticSize = Enum.AutomaticSize.X, ThemeTag = { BackgroundColor3 = "Keybind" } }, {
-    New("UICorner", { CornerRadius = UDim.new(0,5) }), New("UIPadding", { PaddingLeft = UDim.new(0,8), PaddingRight = UDim.new(0,8) }),
+    New("UICorner", { CornerRadius = UDim.new(0,8) }), New("UIPadding", { PaddingLeft = UDim.new(0,8), PaddingRight = UDim.new(0,8) }),
     New("UIStroke", { Transparency = 0.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "InElementBorder" } }), label,
   })
   function kb:GetState()
@@ -2451,7 +2427,7 @@ local function AddDropdown(self, idx, cfg)
     Size = UDim2.fromOffset(160,30), Position = UDim2.new(1,-10,0.5,0), AnchorPoint = Vector2.new(1,0.5),
     BackgroundTransparency = 0.9, Parent = DropdownFrame.Frame, ThemeTag = { BackgroundColor3 = "DropdownFrame" },
   }, {
-    New("UICorner", { CornerRadius = UDim.new(0,5) }),
+    New("UICorner", { CornerRadius = UDim.new(0,8) }),
     New("UIStroke", { Transparency = 0.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "InElementBorder" } }),
     DropdownIco, DropdownDisplay,
   })
@@ -2690,12 +2666,12 @@ local function AddColorpicker(self, idx, cfg)
   Colorpicker.SetDesc = ColorpickerFrame.SetDesc
   local DisplayFrameColor = New("Frame", {
     Size = UDim2.fromScale(1,1), BackgroundColor3 = Colorpicker.Value, Parent = ColorpickerFrame.Frame,
-  }, { New("UICorner", { CornerRadius = UDim.new(0,4) }) })
+  }, { New("UICorner", { CornerRadius = UDim.new(0,7) }) })
   local DisplayFrame = New("ImageLabel", {
     Size = UDim2.fromOffset(26,26), Position = UDim2.new(1,-10,0.5,0), AnchorPoint = Vector2.new(1,0.5),
     Parent = ColorpickerFrame.Frame, Image = "http://www.roblox.com/asset/?id=14204231522",
     ImageTransparency = 0.45, ScaleType = Enum.ScaleType.Tile, TileSize = UDim2.fromOffset(40,40),
-  }, { New("UICorner", { CornerRadius = UDim.new(0,4) }), DisplayFrameColor })
+  }, { New("UICorner", { CornerRadius = UDim.new(0,7) }), DisplayFrameColor })
   local function CreateColorDialog()
     local Dialog = DialogModule:Create()
     Dialog.Title.Text = Colorpicker.Title
@@ -2727,23 +2703,23 @@ local function AddColorpicker(self, idx, cfg)
     local SatVibMap = New("ImageLabel", {
       Size = UDim2.fromOffset(180,160), Position = UDim2.fromOffset(20,55), Image = "rbxassetid://4155801252",
       BackgroundColor3 = Colorpicker.Value, BackgroundTransparency = 0, Parent = Dialog.Root,
-    }, { New("UICorner", { CornerRadius = UDim.new(0,4) }), SatCursor })
+    }, { New("UICorner", { CornerRadius = UDim.new(0,7) }), SatCursor })
     local OldColorFrame = New("Frame", {
       BackgroundColor3 = Colorpicker.Value, Size = UDim2.fromScale(1,1), BackgroundTransparency = Colorpicker.Transparency,
-    }, { New("UICorner", { CornerRadius = UDim.new(0,4) }) })
+    }, { New("UICorner", { CornerRadius = UDim.new(0,7) }) })
     New("ImageLabel", {
       Image = "http://www.roblox.com/asset/?id=14204231522", ImageTransparency = 0.45, ScaleType = Enum.ScaleType.Tile,
       TileSize = UDim2.fromOffset(40,40), BackgroundTransparency = 1, Position = UDim2.fromOffset(112,220),
       Size = UDim2.fromOffset(88,24), Parent = Dialog.Root,
-    }, { New("UICorner", { CornerRadius = UDim.new(0,4) }), New("UIStroke", { Thickness = 2, Transparency = 0.75 }), OldColorFrame })
+    }, { New("UICorner", { CornerRadius = UDim.new(0,7) }), New("UIStroke", { Thickness = 2, Transparency = 0.75 }), OldColorFrame })
     local DialogDisplayFrame = New("Frame", {
       BackgroundColor3 = Colorpicker.Value, Size = UDim2.fromScale(1,1), BackgroundTransparency = 0,
-    }, { New("UICorner", { CornerRadius = UDim.new(0,4) }) })
+    }, { New("UICorner", { CornerRadius = UDim.new(0,7) }) })
     New("ImageLabel", {
       Image = "http://www.roblox.com/asset/?id=14204231522", ImageTransparency = 0.45, ScaleType = Enum.ScaleType.Tile,
       TileSize = UDim2.fromOffset(40,40), BackgroundTransparency = 1, Position = UDim2.fromOffset(20,220),
       Size = UDim2.fromOffset(88,24), Parent = Dialog.Root,
-    }, { New("UICorner", { CornerRadius = UDim.new(0,4) }), New("UIStroke", { Thickness = 2, Transparency = 0.75 }), DialogDisplayFrame })
+    }, { New("UICorner", { CornerRadius = UDim.new(0,7) }), New("UIStroke", { Thickness = 2, Transparency = 0.75 }), DialogDisplayFrame })
     local SequenceTable = {}
     for Color = 0, 1, 0.1 do table.insert(SequenceTable, ColorSequenceKeypoint.new(Color, Color3.fromHSV(Color, 1, 1))) end
     local HueDragHolder = New("Frame", { Size = UDim2.new(1,0,1,-10), Position = UDim2.fromOffset(0,5), BackgroundTransparency = 1 })
