@@ -2045,7 +2045,7 @@ local function BuildWindow(Config)
       return
     end
     for _, entry in next, Window.SearchElements do
-      local match = entry.Title:lower():find(query, 1, true) or (entry.Desc and entry.Desc:lower():find(query, 1, true))
+      local match = entry.Title:lower():find(query, 1, true)
       entry.Frame.Visible = not not match
     end
     local containerHasResult = {}
