@@ -18,6 +18,9 @@ local function getLibrary()
   return LibraryRef[1]
 end
 
+-- Forward declaration (populated later, used by TabModule before definition)
+local Elements
+
 -- ============ Flipper ============
 local Connection = {}
 Connection.__index = Connection
@@ -2204,7 +2207,7 @@ function Library:GetIcon(name)
 end
 
 -- Elements table (AddButton, AddToggle, etc.) - populated below
-local Elements = {}
+Elements = {}
 Elements.__index = Elements
 Library.Elements = Elements
 
