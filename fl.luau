@@ -665,28 +665,7 @@ function Creator.SpringMotor(initial, inst, prop, ignoreDialog, resetOnTheme)
   return motor, setVal
 end
 
-local function CreateRipple(parent)
-  local absPos = parent.AbsolutePosition
-  local absSize = parent.AbsoluteSize
-  local mx, my = Mouse.X - absPos.X, Mouse.Y - absPos.Y
-  local maxDist = math.max(absSize.X, absSize.Y) * 1.5
-  local accentColor = Creator.GetThemeProperty("Accent")
-  local ripple = Creator.New("Frame", {
-    Position = UDim2.fromOffset(mx, my),
-    AnchorPoint = Vector2.new(0.5, 0.5),
-    Size = UDim2.fromOffset(0, 0),
-    BackgroundColor3 = accentColor,
-    BackgroundTransparency = 0.7,
-    Parent = parent,
-    ZIndex = 99,
-  }, {
-    Creator.New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-  })
-  local ti = TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-  TweenService:Create(ripple, ti, { Size = UDim2.fromOffset(maxDist, maxDist), BackgroundTransparency = 1 }):Play()
-  task.delay(0.5, function() pcall(function() ripple:Destroy() end) end)
-end
-Creator.CreateRipple = CreateRipple
+Creator.CreateRipple = function() end
 
 -- ============ Icons (820 Lucide icons) ============
 local Icons = {
@@ -1741,59 +1720,97 @@ function Notification:Init(GUI)
 end
 
 function Notification:New(cfg)
-  cfg.Title = cfg.Title or "Title"
-  cfg.Content = cfg.Content or "Content"
+  cfg.Title = cfg.Title or "Notification"
+  cfg.Content = cfg.Content or ""
   cfg.SubContent = cfg.SubContent or ""
   cfg.Duration = cfg.Duration or nil
-  cfg.Buttons = cfg.Buttons or {}
   local New = Creator.New
   local notif = { Closed = false }
-  notif.AcrylicPaint = Acrylic.AcrylicPaint()
+  notif.AcrylicPaint = Acrylic.AcrylicPaint({ ShadowTransparency = 0.55, GradientTransparency = 0.96, BorderTransparency = 0.85 })
   notif.Title = New("TextLabel", {
-    Position = UDim2.new(0,14,0,17), Text = cfg.Title, RichText = true, TextColor3 = Color3.fromRGB(255,255,255), TextTransparency = 0,
-    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), TextSize = 13, TextXAlignment = "Left", TextYAlignment = "Center",
-    Size = UDim2.new(1,-12,0,12), TextWrapped = true, BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
+    Position = UDim2.fromOffset(16, 14), Text = cfg.Title, RichText = true,
+    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold),
+    TextSize = 14, TextXAlignment = "Left", TextYAlignment = "Center",
+    Size = UDim2.new(1, -50, 0, 16), TextWrapped = true, BackgroundTransparency = 1,
+    ThemeTag = { TextColor3 = "Text" },
   })
   notif.ContentLabel = New("TextLabel", {
-    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), Text = cfg.Content, TextColor3 = Color3.fromRGB(240,240,240), TextSize = 14,
-    TextXAlignment = Enum.TextXAlignment.Left, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1,0,0,14), BackgroundTransparency = 1, TextWrapped = true, ThemeTag = { TextColor3 = "Text" },
+    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), Text = cfg.Content,
+    TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left,
+    AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 14),
+    BackgroundTransparency = 1, TextWrapped = true, ThemeTag = { TextColor3 = "Text" },
   })
   notif.SubContentLabel = New("TextLabel", {
-    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), Text = cfg.SubContent, TextColor3 = Color3.fromRGB(240,240,240), TextSize = 14,
-    TextXAlignment = Enum.TextXAlignment.Left, AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1,0,0,14), BackgroundTransparency = 1, TextWrapped = true, ThemeTag = { TextColor3 = "SubText" },
+    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), Text = cfg.SubContent,
+    TextSize = 11, TextXAlignment = Enum.TextXAlignment.Left,
+    AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1, 0, 0, 14),
+    BackgroundTransparency = 1, TextWrapped = true, TextTransparency = 0.3,
+    ThemeTag = { TextColor3 = "SubText" },
   })
   notif.LabelHolder = New("Frame", {
-    AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Position = UDim2.fromOffset(14,40), Size = UDim2.new(1,-28,0,0),
+    AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1,
+    Position = UDim2.fromOffset(16, 36), Size = UDim2.new(1, -32, 0, 0),
   }, {
-    New("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0,3) }),
+    New("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 4) }),
     notif.ContentLabel, notif.SubContentLabel,
   })
-  notif.CloseButton = New("TextButton", {
-    Text = "", Position = UDim2.new(1,-14,0,13), Size = UDim2.fromOffset(20,20), AnchorPoint = Vector2.new(1,0), BackgroundTransparency = 1,
-  }, {
-    New("ImageLabel", { Image = Assets.Close, Size = UDim2.fromOffset(16,16), Position = UDim2.fromScale(0.5,0.5), AnchorPoint = Vector2.new(0.5,0.5), BackgroundTransparency = 1, ThemeTag = { ImageColor3 = "Text" } }),
+  local closeIcon = New("ImageLabel", {
+    Image = Assets.Close, Size = UDim2.fromOffset(10, 10),
+    Position = UDim2.fromScale(0.5, 0.5), AnchorPoint = Vector2.new(0.5, 0.5),
+    BackgroundTransparency = 1, ImageTransparency = 0.4, ThemeTag = { ImageColor3 = "Text" },
   })
-  notif.Root = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1,0,1,0), Position = UDim2.fromScale(1,0) }, {
-    notif.AcrylicPaint.Frame, notif.Title, notif.CloseButton, notif.LabelHolder,
+  notif.CloseButton = New("TextButton", {
+    Text = "", Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(22, 22),
+    AnchorPoint = Vector2.new(1, 0), BackgroundTransparency = 0.9,
+    ThemeTag = { BackgroundColor3 = "Element" },
+  }, {
+    New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+    closeIcon,
+  })
+  Creator.AddSignal(notif.CloseButton.MouseEnter, function()
+    TweenService:Create(closeIcon, TweenInfo.new(0.15), { ImageTransparency = 0 }):Play()
+    TweenService:Create(notif.CloseButton, TweenInfo.new(0.15), { BackgroundTransparency = 0.75 }):Play()
+  end)
+  Creator.AddSignal(notif.CloseButton.MouseLeave, function()
+    TweenService:Create(closeIcon, TweenInfo.new(0.15), { ImageTransparency = 0.4 }):Play()
+    TweenService:Create(notif.CloseButton, TweenInfo.new(0.15), { BackgroundTransparency = 0.9 }):Play()
+  end)
+  local progressBar
+  if cfg.Duration then
+    progressBar = New("Frame", {
+      Size = UDim2.new(1, 0, 0, 2), Position = UDim2.new(0, 0, 1, -2),
+      BackgroundTransparency = 0.5, ThemeTag = { BackgroundColor3 = "Accent" },
+    }, { New("UICorner", { CornerRadius = UDim.new(0, 1) }) })
+  end
+  notif.Root = New("Frame", {
+    BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1, 0), Position = UDim2.fromScale(1, 0), ClipsDescendants = true,
+  }, {
+    notif.AcrylicPaint.Frame, notif.Title, notif.CloseButton, notif.LabelHolder, progressBar,
   })
   if cfg.Content == "" then notif.ContentLabel.Visible = false end
   if cfg.SubContent == "" then notif.SubContentLabel.Visible = false end
-  notif.Holder = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1,0,0,200), Parent = self.Holder }, { notif.Root })
+  notif.Holder = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 200), Parent = self.Holder }, { notif.Root })
   local rootMotor = Flipper.GroupMotor.new({ Scale = 1, Offset = 60 })
   rootMotor:onStep(function(v) notif.Root.Position = UDim2.new(v.Scale, v.Offset, 0, 0) end)
   Creator.AddSignal(notif.CloseButton.MouseButton1Click, function() notif:Close() end)
   function notif:Open()
     local h = notif.LabelHolder.AbsoluteSize.Y
-    notif.Holder.Size = UDim2.new(1,0,0,58 + h)
-    rootMotor:setGoal({ Scale = Flipper.Spring.new(0, { frequency = 5 }), Offset = Flipper.Spring.new(0, { frequency = 5 }) })
+    notif.Holder.Size = UDim2.new(1, 0, 0, 52 + h)
+    rootMotor:setGoal({ Scale = Flipper.Spring.new(0, { frequency = 6 }), Offset = Flipper.Spring.new(0, { frequency = 6 }) })
+    if cfg.Duration and progressBar then
+      task.spawn(function()
+        task.wait(0.3)
+        TweenService:Create(progressBar, TweenInfo.new(cfg.Duration - 0.3, Enum.EasingStyle.Linear), { Size = UDim2.new(0, 0, 0, 2) }):Play()
+      end)
+    end
   end
   function notif:Close()
     if notif.Closed then return end
     notif.Closed = true
     task.spawn(function()
-      rootMotor:setGoal({ Scale = Flipper.Spring.new(1, { frequency = 5 }), Offset = Flipper.Spring.new(60, { frequency = 5 }) })
-      task.wait(0.4)
-      if getLibrary() and getLibrary().UseAcrylic then notif.AcrylicPaint.Model:Destroy() end
+      rootMotor:setGoal({ Scale = Flipper.Spring.new(1, { frequency = 6 }), Offset = Flipper.Spring.new(60, { frequency = 6 }) })
+      task.wait(0.35)
+      if getLibrary() and getLibrary().UseAcrylic and notif.AcrylicPaint.Model then pcall(function() notif.AcrylicPaint.Model:Destroy() end) end
       notif.Holder:Destroy()
     end)
   end
@@ -1944,7 +1961,6 @@ function TabModule:New(Title, Icon, Parent)
   Creator.AddSignal(tab.Frame.MouseButton1Down, function() tab.SetTransparency(0.92) end)
   Creator.AddSignal(tab.Frame.MouseButton1Up, function() tab.SetTransparency(tab.Selected and 0.85 or 0.89) end)
   Creator.AddSignal(tab.Frame.MouseButton1Click, function()
-    if Window.SearchBox and Window.SearchActive then Window.SearchBox.Text = "" end
     TabModule:SelectTab(idx)
   end)
   self.Containers[idx] = tab.ContainerFrame
@@ -2036,24 +2052,14 @@ local function BuildWindow(Config)
     if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.25), { Transparency = 0.85 }):Play() end
   end)
   Window.SearchElements = {}
-  Window.SearchActive = false
+  Window.SearchQuery = ""
   local function doSearch(query)
     query = query:lower()
-    if query == "" then
-      if Window.SearchActive then
-        Window.SearchActive = false
-        for _, entry in next, Window.SearchElements do entry.Frame.Visible = true end
-        for _, c in next, TabModule.Containers do c.Visible = false end
-        if TabModule.SelectedTab and TabModule.Containers[TabModule.SelectedTab] then
-          TabModule.Containers[TabModule.SelectedTab].Visible = true
-        end
-      end
-    else
-      if not Window.SearchActive then
-        Window.SearchActive = true
-        for _, c in next, TabModule.Containers do c.Visible = true end
-      end
-      for _, entry in next, Window.SearchElements do
+    Window.SearchQuery = query
+    for _, entry in next, Window.SearchElements do
+      if query == "" then
+        entry.Frame.Visible = true
+      else
         local match = entry.Title:lower():find(query, 1, true) or (entry.Desc and entry.Desc:lower():find(query, 1, true))
         entry.Frame.Visible = not not match
       end
@@ -2172,7 +2178,6 @@ local function BuildWindow(Config)
   TabModule:Init(Window)
   function Window:AddTab(tabCfg) return TabModule:New(tabCfg.Title, tabCfg.Icon, Window.TabHolder) end
   function Window:SelectTab(tabIdx)
-    if self.SearchBox and self.SearchActive then self.SearchBox.Text = "" end
     TabModule:SelectTab(tabIdx or 1)
   end
   Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function() LastVal = TabModule:GetCurrentTabPos() + 16 LastTime = 0 Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos())) end)
@@ -2305,7 +2310,6 @@ local function AddButton(self, idx, cfg)
   })
   el.Frame.ClipsDescendants = true
   Creator.AddSignal(el.Frame.MouseButton1Click, function()
-    Creator.CreateRipple(el.Frame)
     self.Library:SafeCallback(cfg.Callback)
   end)
   return el
