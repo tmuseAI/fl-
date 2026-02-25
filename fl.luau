@@ -1573,10 +1573,6 @@ local function NewElement(Title, Desc, Parent, Hover)
   function el:Destroy() el.Frame:Destroy() end
   el:SetTitle(Title)
   el:SetDesc(Desc)
-  local lib = getLibrary()
-  if lib and lib.Window and lib.Window.SearchElements then
-    table.insert(lib.Window.SearchElements, { Frame = el.Frame, Title = Title or "", Desc = Desc or "", Container = Container })
-  end
   if Hover then
     local motor, setT = Creator.SpringMotor(Creator.GetThemeProperty("ElementTransparency"), el.Frame, "BackgroundTransparency", false, true)
     Creator.AddSignal(el.Frame.MouseEnter, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
@@ -1966,6 +1962,11 @@ function TabModule:SelectTab(tabIdx)
   self.Tabs[tabIdx].Selected = true
   Window.TabDisplay.Text = self.Tabs[tabIdx].Name
   Window.SelectorPosMotor:setGoal(Flipper.Spring.new(self:GetCurrentTabPos(), { frequency = 6 }))
+  if Window.SearchActive then
+    for _, c in next, self.Containers do c.Visible = false end
+    self.Containers[tabIdx].Visible = true
+    return
+  end
   task.spawn(function()
     Window.ContainerHolder.Parent = Window.ContainerAnim
     Window.ContainerPosMotor:setGoal(Flipper.Spring.new(15, { frequency = 10 }))
@@ -2030,41 +2031,54 @@ local function BuildWindow(Config)
   end)
   Window.SearchElements = {}
   Window.SearchQuery = ""
+  Window.SearchActive = false
   local function doSearch(query)
     query = query:lower()
     Window.SearchQuery = query
     if query == "" then
+      Window.SearchActive = false
       for _, entry in next, Window.SearchElements do entry.Frame.Visible = true end
       for i, t in next, TabModule.Tabs do
         t.Frame.Visible = true
       end
-      if TabModule.SelectedTab then
-        for _, c in next, TabModule.Containers do c.Visible = false end
+      for _, c in next, TabModule.Containers do c.Visible = false end
+      if TabModule.SelectedTab and TabModule.Containers[TabModule.SelectedTab] then
         TabModule.Containers[TabModule.SelectedTab].Visible = true
       end
       return
     end
+    Window.SearchActive = true
     for _, entry in next, Window.SearchElements do
       local match = entry.Title:lower():find(query, 1, true)
       entry.Frame.Visible = not not match
     end
-    local containerHasResult = {}
+    local tabHasResult = {}
     for _, entry in next, Window.SearchElements do
-      if entry.Frame.Visible and entry.Container then
-        containerHasResult[entry.Container] = true
+      if entry.Frame.Visible and entry.TabContainer then
+        tabHasResult[entry.TabContainer] = true
       end
     end
     local firstTabWithResult = nil
     for i, t in next, TabModule.Tabs do
-      local hasResult = containerHasResult[TabModule.Containers[i]] or false
+      local container = TabModule.Containers[i]
+      local hasResult = tabHasResult[container] or false
       t.Frame.Visible = hasResult
-      TabModule.Containers[i].Visible = hasResult
       if hasResult and not firstTabWithResult then firstTabWithResult = i end
     end
-    if TabModule.SelectedTab and not containerHasResult[TabModule.Containers[TabModule.SelectedTab]] then
-      if firstTabWithResult then
-        TabModule:SelectTab(firstTabWithResult)
+    local activeTab = TabModule.SelectedTab
+    if activeTab and not tabHasResult[TabModule.Containers[activeTab]] then
+      activeTab = firstTabWithResult
+      if activeTab then
+        for _, t in next, TabModule.Tabs do t.SetTransparency(1) t.Selected = false end
+        TabModule.SelectedTab = activeTab
+        TabModule.Tabs[activeTab].SetTransparency(0.89)
+        TabModule.Tabs[activeTab].Selected = true
+        Window.TabDisplay.Text = TabModule.Tabs[activeTab].Name
       end
+    end
+    for _, c in next, TabModule.Containers do c.Visible = false end
+    if activeTab and TabModule.Containers[activeTab] then
+      TabModule.Containers[activeTab].Visible = true
     end
   end
   Creator.AddSignal(Window.SearchBox:GetPropertyChangedSignal("Text"), function() doSearch(Window.SearchBox.Text) end)
@@ -2300,6 +2314,13 @@ function Library:Notify(cfg)
   return Notification:New(cfg)
 end
 
+local function registerSearchElement(self, el, title)
+  local lib = self.Library or getLibrary()
+  if lib and lib.Window and lib.Window.SearchElements then
+    table.insert(lib.Window.SearchElements, { Frame = el.Frame, Title = title or "", TabContainer = self.ScrollFrame })
+  end
+end
+
 local function AddButton(self, idx, cfg)
   assert(cfg.Title, "Button - Missing Title")
   cfg.Callback = cfg.Callback or function() end
@@ -2311,6 +2332,7 @@ local function AddButton(self, idx, cfg)
   Creator.AddSignal(el.Frame.MouseButton1Click, function()
     self.Library:SafeCallback(cfg.Callback)
   end)
+  registerSearchElement(self, el, cfg.Title)
   return el
 end
 
@@ -2320,6 +2342,7 @@ local function AddParagraph(self, idx, cfg)
   local el = NewElement(cfg.Title, cfg.Content, self.Container, false)
   el.Frame.BackgroundTransparency = 0.92
   el.Border.Transparency = 0.6
+  registerSearchElement(self, el, cfg.Title)
   return el
 end
 
@@ -2353,6 +2376,7 @@ local function AddToggle(self, idx, cfg)
   Creator.AddSignal(frame.Frame.MouseButton1Click, function() t:SetValue(not t.Value) end)
   t:SetValue(t.Value)
   Lib.Options[idx] = t
+  registerSearchElement(self, frame, cfg.Title)
   return t
 end
 Elements.AddToggle = AddToggle
@@ -2393,6 +2417,7 @@ local function AddSlider(self, idx, cfg)
   function s:Destroy() frame:Destroy() Lib.Options[idx] = nil end
   s:SetValue(cfg.Default)
   Lib.Options[idx] = s
+  registerSearchElement(self, frame, cfg.Title)
   return s
 end
 Elements.AddSlider = AddSlider
@@ -2419,6 +2444,7 @@ local function AddInput(self, idx, cfg)
   function inp:OnChanged(fn) inp.Changed = fn fn(inp.Value) end
   function inp:Destroy() frame:Destroy() Lib.Options[idx] = nil end
   Lib.Options[idx] = inp
+  registerSearchElement(self, frame, cfg.Title)
   return inp
 end
 Elements.AddInput = AddInput
@@ -2473,6 +2499,7 @@ local function AddKeybind(self, idx, cfg)
     end
   end)
   Lib.Options[idx] = kb
+  registerSearchElement(self, frame, cfg.Title)
   return kb
 end
 Elements.AddKeybind = AddKeybind
@@ -2718,6 +2745,7 @@ local function AddDropdown(self, idx, cfg)
     Dropdown:Display()
   end
   Library.Options[idx] = Dropdown
+  registerSearchElement(self, DropdownFrame, cfg.Title)
   return Dropdown
 end
 Elements.AddDropdown = AddDropdown
@@ -2974,6 +3002,7 @@ local function AddColorpicker(self, idx, cfg)
   Creator.AddSignal(ColorpickerFrame.Frame.MouseButton1Click, function() CreateColorDialog() end)
   Colorpicker:Display()
   Library.Options[idx] = Colorpicker
+  registerSearchElement(self, ColorpickerFrame, cfg.Title)
   return Colorpicker
 end
 Elements.AddColorpicker = AddColorpicker
