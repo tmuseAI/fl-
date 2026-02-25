@@ -1517,36 +1517,52 @@ local Acrylic = {}
 function Acrylic.init() end
 function Acrylic.Enable() end
 function Acrylic.Disable() end
-function Acrylic.AcrylicPaint()
+function Acrylic.AcrylicPaint(opts)
+  opts = opts or {}
+  local shadowT = opts.ShadowTransparency
+  local gradientT = opts.GradientTransparency
+  local borderT = opts.BorderTransparency
+  if shadowT == nil then shadowT = 0.4 end
+  if gradientT == nil then gradientT = 0.92 end
+  if borderT == nil then borderT = 0.75 end
   local New = Creator.New
   local shadow = New("ImageLabel", {
     Image = "rbxassetid://8992230677", ScaleType = "Slice",
     SliceCenter = Rect.new(Vector2.new(99,99), Vector2.new(99,99)),
     AnchorPoint = Vector2.new(0.5,0.5), Size = UDim2.new(1,80,1,76),
     Position = UDim2.new(0.5,0,0.5,4), BackgroundTransparency = 1,
-    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 1, ZIndex = 0,
+    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = shadowT, ZIndex = 0,
   })
   local bg = New("Frame", {
     BackgroundTransparency = 0.02, Size = UDim2.fromScale(1,1), Name = "Background",
     ThemeTag = { BackgroundColor3 = "AcrylicMain" },
   }, { New("UICorner", { CornerRadius = UDim.new(0,12) }) })
   local gradient = New("Frame", {
-    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 1,
+    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = gradientT,
     Size = UDim2.fromScale(1,1),
   }, {
     New("UICorner", { CornerRadius = UDim.new(0,12) }),
     New("UIGradient", { Rotation = 155, ThemeTag = { Color = "AcrylicGradient" } }),
   })
+  local borderStroke = New("UIStroke", { Transparency = borderT, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } })
   local border = New("Frame", {
     BackgroundTransparency = 1, Size = UDim2.fromScale(1,1), ZIndex = 2,
   }, {
     New("UICorner", { CornerRadius = UDim.new(0,12) }),
-    New("UIStroke", { Transparency = 1, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }),
+    borderStroke,
   })
   local frame = New("Frame", {
     Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, BorderSizePixel = 0,
   }, { shadow, New("UICorner", { CornerRadius = UDim.new(0,12) }), bg, gradient, border })
-  return { Frame = frame, Model = frame, AddParent = function() end, SetVisibility = function() end }
+  return {
+    Frame = frame, Model = frame, AddParent = function() end, SetVisibility = function() end,
+    Shadow = shadow, Gradient = gradient, BorderStroke = borderStroke,
+    SetTransparency = function(st, gt, bt)
+      if st ~= nil then shadow.ImageTransparency = st end
+      if gt ~= nil then gradient.BackgroundTransparency = gt end
+      if bt ~= nil then borderStroke.Transparency = bt end
+    end,
+  }
 end
 
 -- ============ Assets ============
@@ -1601,8 +1617,6 @@ local function NewElement(Title, Desc, Parent, Hover)
     local motor, setT = Creator.SpringMotor(Creator.GetThemeProperty("ElementTransparency"), el.Frame, "BackgroundTransparency", false, true)
     Creator.AddSignal(el.Frame.MouseEnter, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
     Creator.AddSignal(el.Frame.MouseLeave, function() setT(Creator.GetThemeProperty("ElementTransparency")) end)
-    Creator.AddSignal(el.Frame.MouseButton1Down, function() setT(Creator.GetThemeProperty("ElementTransparency") + Creator.GetThemeProperty("HoverChange")) end)
-    Creator.AddSignal(el.Frame.MouseButton1Up, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
   end
   return el
 end
@@ -1982,7 +1996,11 @@ local function BuildWindow(Config)
     Position = UDim2.fromOffset(Camera.ViewportSize.X/2 - Config.Size.X.Offset/2, Camera.ViewportSize.Y/2 - Config.Size.Y.Offset/2),
   }
   Window.TabWidth = Config.TabWidth or 160
-  Window.AcrylicPaint = Acrylic.AcrylicPaint()
+  Window.AcrylicPaint = Acrylic.AcrylicPaint({
+    ShadowTransparency = Config.ShadowTransparency,
+    GradientTransparency = Config.GradientTransparency,
+    BorderTransparency = Config.BorderTransparency,
+  })
   local Dragging, DragInput, MousePos, StartPos = false
   local Resizing, ResizePos = false
   local MinimizeNotif = false
@@ -1998,17 +2016,6 @@ local function BuildWindow(Config)
     RichText = true, Text = "Tab", TextTransparency = 0, FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold, Enum.FontStyle.Normal), TextSize = 22, TextXAlignment = "Left", TextYAlignment = "Center",
     Size = UDim2.new(0,200,0,22), Position = UDim2.fromOffset(Window.TabWidth + 26, 56), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
   })
-  local searchIconId = (Icons and Icons.assets and Icons.assets["lucide-search"]) or "rbxassetid://10734950309"
-  local searchIconWrap = New("Frame", {
-    Size = UDim2.fromOffset(28, 30), Position = UDim2.fromOffset(0, 0),
-    BackgroundTransparency = 1, ClipsDescendants = false,
-  })
-  Window.SearchIcon = New("ImageLabel", {
-    Image = searchIconId, Size = UDim2.fromOffset(14, 14),
-    AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
-    BackgroundTransparency = 1, ImageTransparency = 0.4,
-    ThemeTag = { ImageColor3 = "SubText" },
-  })
   Window.SearchBox = New("TextBox", {
     FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"), TextSize = 12, PlaceholderText = "Search...",
     Text = "", PlaceholderColor3 = Color3.fromRGB(100,100,110),
@@ -2019,18 +2026,14 @@ local function BuildWindow(Config)
   }, {
     New("UICorner", { CornerRadius = UDim.new(0,8) }),
     New("UIStroke", { Name = "SearchStroke", Transparency = 0.85, ThemeTag = { Color = "ElementBorder" } }),
-    New("UIPadding", { PaddingLeft = UDim.new(0,28) }),
-    searchIconWrap,
+    New("UIPadding", { PaddingLeft = UDim.new(0,10) }),
   })
-  Window.SearchIcon.Parent = searchIconWrap
   local searchStroke = Window.SearchBox:FindFirstChild("SearchStroke")
   Creator.AddSignal(Window.SearchBox.Focused, function()
     if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.2), { Transparency = 0.5 }):Play() end
-    if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.2), { ImageTransparency = 0.15 }):Play() end
   end)
   Creator.AddSignal(Window.SearchBox.FocusLost, function()
     if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.25), { Transparency = 0.85 }):Play() end
-    if Window.SearchIcon then TweenService:Create(Window.SearchIcon, TweenInfo.new(0.25), { ImageTransparency = 0.4 }):Play() end
   end)
   Window.SearchElements = {}
   Window.SearchActive = false
@@ -2150,6 +2153,11 @@ local function BuildWindow(Config)
       TweenService:Create(self.Selector, TweenInfo.new(0.3), { BackgroundColor3 = color }):Play()
     end
   end
+  function Window:SetFrameTransparency(shadow, gradient, border)
+    if self.AcrylicPaint and self.AcrylicPaint.SetTransparency then
+      self.AcrylicPaint.SetTransparency(shadow, gradient, border)
+    end
+  end
   DialogModule:Init(Window)
   function Window:Dialog(cfg)
     local d = DialogModule:Create()
@@ -2242,6 +2250,9 @@ function Library:CreateWindow(cfg)
     SubTitle = cfg.SubTitle or "",
     TabWidth = cfg.TabWidth or 160,
     SelectorColor = cfg.SelectorColor,
+    ShadowTransparency = cfg.ShadowTransparency,
+    GradientTransparency = cfg.GradientTransparency,
+    BorderTransparency = cfg.BorderTransparency,
   })
   self.Window = Window
   self:SetTheme(cfg.Theme or "Dark")
