@@ -276,9 +276,17 @@ local ThemeDarker = {
   ElementBorder = Color3.fromRGB(25, 25, 25),
   InElementBorder = Color3.fromRGB(55, 55, 55),
   ElementTransparency = 0.82,
+  ToggleSlider = Color3.fromRGB(100, 100, 100),
+  ToggleToggled = Color3.fromRGB(0, 0, 0),
+  SliderRail = Color3.fromRGB(100, 100, 100),
   DropdownFrame = Color3.fromRGB(120, 120, 120),
   DropdownHolder = Color3.fromRGB(35, 35, 35),
   DropdownBorder = Color3.fromRGB(25, 25, 25),
+  DropdownOption = Color3.fromRGB(100, 100, 100),
+  Keybind = Color3.fromRGB(100, 100, 100),
+  Input = Color3.fromRGB(120, 120, 120),
+  InputFocused = Color3.fromRGB(10, 10, 10),
+  InputIndicator = Color3.fromRGB(120, 120, 120),
   Dialog = Color3.fromRGB(35, 35, 35),
   DialogHolder = Color3.fromRGB(25, 25, 25),
   DialogHolderLine = Color3.fromRGB(20, 20, 20),
@@ -287,6 +295,10 @@ local ThemeDarker = {
   DialogBorder = Color3.fromRGB(50, 50, 50),
   DialogInput = Color3.fromRGB(45, 45, 45),
   DialogInputLine = Color3.fromRGB(120, 120, 120),
+  Text = Color3.fromRGB(230, 230, 230),
+  SubText = Color3.fromRGB(150, 150, 150),
+  Hover = Color3.fromRGB(100, 100, 100),
+  HoverChange = 0.07,
 }
 
 local ThemeLight = {
@@ -441,14 +453,131 @@ local ThemeRose = {
   HoverChange = 0.04,
 }
 
+local ThemeNeon = {
+  Name = "Neon",
+  Accent = Color3.fromRGB(57, 255, 20),
+  AcrylicMain = Color3.fromRGB(8, 8, 12),
+  AcrylicBorder = Color3.fromRGB(30, 80, 30),
+  AcrylicGradient = ColorSequence.new(Color3.fromRGB(5, 20, 5), Color3.fromRGB(0, 0, 0)),
+  AcrylicNoise = 0.96,
+  TitleBarLine = Color3.fromRGB(30, 80, 30),
+  Tab = Color3.fromRGB(80, 200, 80),
+  Element = Color3.fromRGB(50, 150, 50),
+  ElementBorder = Color3.fromRGB(10, 30, 10),
+  InElementBorder = Color3.fromRGB(30, 90, 30),
+  ElementTransparency = 0.88,
+  ToggleSlider = Color3.fromRGB(50, 150, 50),
+  ToggleToggled = Color3.fromRGB(0, 0, 0),
+  SliderRail = Color3.fromRGB(50, 150, 50),
+  DropdownFrame = Color3.fromRGB(80, 200, 80),
+  DropdownHolder = Color3.fromRGB(12, 30, 12),
+  DropdownBorder = Color3.fromRGB(10, 25, 10),
+  DropdownOption = Color3.fromRGB(50, 150, 50),
+  Keybind = Color3.fromRGB(50, 150, 50),
+  Input = Color3.fromRGB(80, 200, 80),
+  InputFocused = Color3.fromRGB(5, 10, 5),
+  InputIndicator = Color3.fromRGB(60, 180, 60),
+  Dialog = Color3.fromRGB(12, 30, 12),
+  DialogHolder = Color3.fromRGB(8, 20, 8),
+  DialogHolderLine = Color3.fromRGB(5, 15, 5),
+  DialogButton = Color3.fromRGB(12, 30, 12),
+  DialogButtonBorder = Color3.fromRGB(30, 90, 30),
+  DialogBorder = Color3.fromRGB(25, 70, 25),
+  DialogInput = Color3.fromRGB(15, 40, 15),
+  DialogInputLine = Color3.fromRGB(60, 180, 60),
+  Text = Color3.fromRGB(200, 255, 200),
+  SubText = Color3.fromRGB(100, 200, 100),
+  Hover = Color3.fromRGB(50, 150, 50),
+  HoverChange = 0.06,
+}
+
+local ThemeOcean = {
+  Name = "Ocean",
+  Accent = Color3.fromRGB(0, 150, 255),
+  AcrylicMain = Color3.fromRGB(8, 15, 30),
+  AcrylicBorder = Color3.fromRGB(20, 50, 100),
+  AcrylicGradient = ColorSequence.new(Color3.fromRGB(5, 15, 40), Color3.fromRGB(2, 8, 20)),
+  AcrylicNoise = 0.94,
+  TitleBarLine = Color3.fromRGB(20, 50, 100),
+  Tab = Color3.fromRGB(80, 150, 220),
+  Element = Color3.fromRGB(40, 100, 180),
+  ElementBorder = Color3.fromRGB(10, 25, 50),
+  InElementBorder = Color3.fromRGB(30, 70, 130),
+  ElementTransparency = 0.86,
+  ToggleSlider = Color3.fromRGB(40, 100, 180),
+  ToggleToggled = Color3.fromRGB(0, 0, 0),
+  SliderRail = Color3.fromRGB(40, 100, 180),
+  DropdownFrame = Color3.fromRGB(80, 150, 220),
+  DropdownHolder = Color3.fromRGB(10, 25, 55),
+  DropdownBorder = Color3.fromRGB(8, 20, 45),
+  DropdownOption = Color3.fromRGB(40, 100, 180),
+  Keybind = Color3.fromRGB(40, 100, 180),
+  Input = Color3.fromRGB(80, 150, 220),
+  InputFocused = Color3.fromRGB(5, 10, 25),
+  InputIndicator = Color3.fromRGB(60, 130, 210),
+  Dialog = Color3.fromRGB(10, 25, 55),
+  DialogHolder = Color3.fromRGB(8, 18, 40),
+  DialogHolderLine = Color3.fromRGB(5, 12, 30),
+  DialogButton = Color3.fromRGB(10, 25, 55),
+  DialogButtonBorder = Color3.fromRGB(30, 70, 130),
+  DialogBorder = Color3.fromRGB(25, 60, 110),
+  DialogInput = Color3.fromRGB(12, 30, 60),
+  DialogInputLine = Color3.fromRGB(60, 130, 210),
+  Text = Color3.fromRGB(210, 230, 255),
+  SubText = Color3.fromRGB(120, 170, 220),
+  Hover = Color3.fromRGB(40, 100, 180),
+  HoverChange = 0.06,
+}
+
+local ThemeSunset = {
+  Name = "Sunset",
+  Accent = Color3.fromRGB(255, 100, 50),
+  AcrylicMain = Color3.fromRGB(30, 15, 10),
+  AcrylicBorder = Color3.fromRGB(100, 50, 30),
+  AcrylicGradient = ColorSequence.new(Color3.fromRGB(60, 25, 10), Color3.fromRGB(30, 10, 5)),
+  AcrylicNoise = 0.93,
+  TitleBarLine = Color3.fromRGB(100, 50, 30),
+  Tab = Color3.fromRGB(220, 130, 90),
+  Element = Color3.fromRGB(180, 90, 50),
+  ElementBorder = Color3.fromRGB(50, 25, 15),
+  InElementBorder = Color3.fromRGB(130, 65, 35),
+  ElementTransparency = 0.86,
+  ToggleSlider = Color3.fromRGB(180, 90, 50),
+  ToggleToggled = Color3.fromRGB(0, 0, 0),
+  SliderRail = Color3.fromRGB(180, 90, 50),
+  DropdownFrame = Color3.fromRGB(220, 130, 90),
+  DropdownHolder = Color3.fromRGB(50, 25, 12),
+  DropdownBorder = Color3.fromRGB(40, 20, 10),
+  DropdownOption = Color3.fromRGB(180, 90, 50),
+  Keybind = Color3.fromRGB(180, 90, 50),
+  Input = Color3.fromRGB(220, 130, 90),
+  InputFocused = Color3.fromRGB(20, 10, 5),
+  InputIndicator = Color3.fromRGB(200, 110, 70),
+  Dialog = Color3.fromRGB(50, 25, 12),
+  DialogHolder = Color3.fromRGB(40, 18, 8),
+  DialogHolderLine = Color3.fromRGB(35, 15, 6),
+  DialogButton = Color3.fromRGB(50, 25, 12),
+  DialogButtonBorder = Color3.fromRGB(130, 65, 35),
+  DialogBorder = Color3.fromRGB(110, 55, 30),
+  DialogInput = Color3.fromRGB(60, 30, 15),
+  DialogInputLine = Color3.fromRGB(200, 110, 70),
+  Text = Color3.fromRGB(255, 230, 210),
+  SubText = Color3.fromRGB(220, 160, 120),
+  Hover = Color3.fromRGB(180, 90, 50),
+  HoverChange = 0.06,
+}
+
 local Themes = {
-  Names = { "Dark", "Darker", "Light", "Aqua", "Amethyst", "Rose" },
+  Names = { "Dark", "Darker", "Light", "Aqua", "Amethyst", "Rose", "Neon", "Ocean", "Sunset" },
   Dark = ThemeDark,
   Darker = ThemeDarker,
   Light = ThemeLight,
   Aqua = ThemeAqua,
   Amethyst = ThemeAmethyst,
   Rose = ThemeRose,
+  Neon = ThemeNeon,
+  Ocean = ThemeOcean,
+  Sunset = ThemeSunset,
 }
 
 -- ============ Creator ============
@@ -532,6 +661,34 @@ function Creator.SpringMotor(initial, inst, prop, ignoreDialog, resetOnTheme)
   end
   return motor, setVal
 end
+
+local function CreateRipple(parent)
+  local absPos = parent.AbsolutePosition
+  local absSize = parent.AbsoluteSize
+  local mx, my = Mouse.X - absPos.X, Mouse.Y - absPos.Y
+  local maxDist = math.max(
+    math.sqrt(mx^2 + my^2),
+    math.sqrt((absSize.X - mx)^2 + my^2),
+    math.sqrt(mx^2 + (absSize.Y - my)^2),
+    math.sqrt((absSize.X - mx)^2 + (absSize.Y - my)^2)
+  ) * 2
+  local ripple = Creator.New("Frame", {
+    Position = UDim2.fromOffset(mx, my),
+    AnchorPoint = Vector2.new(0.5, 0.5),
+    Size = UDim2.fromOffset(0, 0),
+    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+    BackgroundTransparency = 0.75,
+    Parent = parent,
+    ZIndex = 99,
+  }, {
+    Creator.New("UICorner", { CornerRadius = UDim.new(1, 0) }),
+  })
+  local ti = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+  local tween1 = TweenService:Create(ripple, ti, { Size = UDim2.fromOffset(maxDist, maxDist), BackgroundTransparency = 1 })
+  tween1:Play()
+  tween1.Completed:Connect(function() ripple:Destroy() end)
+end
+Creator.CreateRipple = CreateRipple
 
 -- ============ Icons (820 Lucide icons) ============
 local Icons = {
@@ -1828,11 +1985,13 @@ function TabModule:New(Title, Icon, Parent)
   self.Tabs[idx] = tab
   tab.Container = tab.ContainerFrame
   tab.ScrollFrame = tab.Container
+  tab.Library = getLibrary()
   function tab:AddSection(title)
     local sec = { Type = "Section" }
     local sf = NewSection(title, tab.Container)
     sec.Container = sf.Container
     sec.ScrollFrame = tab.Container
+    sec.Library = getLibrary()
     setmetatable(sec, Elements)
     return sec
   end
@@ -1889,11 +2048,18 @@ local function BuildWindow(Config)
   Window.ContainerHolder = New("Frame", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 })
   Window.ContainerAnim = New("CanvasGroup", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 })
   Window.ContainerCanvas = New("Frame", { Size = UDim2.new(1, -Window.TabWidth - 32, 1, -102), Position = UDim2.fromOffset(Window.TabWidth + 26, 90), BackgroundTransparency = 1 }, { Window.ContainerAnim, Window.ContainerHolder })
+  local OpenScale = New("UIScale", { Scale = 0.92 })
   Window.Root = New("Frame", { BackgroundTransparency = 1, Size = Window.Size, Position = Window.Position, Parent = Config.Parent }, {
-    Window.AcrylicPaint.Frame, Window.TabDisplay, Window.ContainerCanvas, TabFrame, ResizeStartFrame,
+    Window.AcrylicPaint.Frame, Window.TabDisplay, Window.ContainerCanvas, TabFrame, ResizeStartFrame, OpenScale,
   })
   Window.TitleBar = NewTitleBar({ Title = Config.Title, SubTitle = Config.SubTitle, Parent = Window.Root, Window = Window })
   if Lib.UseAcrylic and Window.AcrylicPaint.AddParent then Window.AcrylicPaint.AddParent(Window.Root) end
+  task.spawn(function()
+    local openInfo = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    TweenService:Create(OpenScale, openInfo, { Scale = 1 }):Play()
+    task.wait(0.4)
+    OpenScale:Destroy()
+  end)
   local SizeMotor = Flipper.GroupMotor.new({ X = Window.Size.X.Offset, Y = Window.Size.Y.Offset })
   local PosMotor = Flipper.GroupMotor.new({ X = Window.Position.X.Offset, Y = Window.Position.Y.Offset })
   Window.SelectorPosMotor = Flipper.SingleMotor.new(17)
@@ -1949,12 +2115,21 @@ local function BuildWindow(Config)
   Creator.AddSignal(UserInputService.InputEnded, function(inp) if Resizing or inp.UserInputType == Enum.UserInputType.Touch then Resizing = false Window.Size = UDim2.fromOffset(SizeMotor:getValue().X, SizeMotor:getValue().Y) end end)
   Creator.AddSignal(Window.TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function() Window.TabHolder.CanvasSize = UDim2.new(0,0,0,Window.TabHolder.UIListLayout.AbsoluteContentSize.Y) end)
   Creator.AddSignal(UserInputService.InputBegan, function(inp)
-    if type(Lib.MinimizeKeybind) == "table" and Lib.MinimizeKeybind.Type == "Keybind" and not UserInputService:GetFocusedTextBox() then if inp.KeyCode.Name == Lib.MinimizeKeybind.Value then self:Minimize() end
-    elseif inp.KeyCode == Lib.MinimizeKey and not UserInputService:GetFocusedTextBox() then self:Minimize() end
+    if type(Lib.MinimizeKeybind) == "table" and Lib.MinimizeKeybind.Type == "Keybind" and not UserInputService:GetFocusedTextBox() then if inp.KeyCode.Name == Lib.MinimizeKeybind.Value then Window:Minimize() end
+    elseif inp.KeyCode == Lib.MinimizeKey and not UserInputService:GetFocusedTextBox() then Window:Minimize() end
   end)
+  Window.MinimizeScale = New("UIScale", { Scale = 1, Parent = Window.Root })
   function Window:Minimize()
     self.Minimized = not self.Minimized
-    self.Root.Visible = not self.Minimized
+    if self.Minimized then
+      local ti = TweenInfo.new(0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+      TweenService:Create(self.MinimizeScale, ti, { Scale = 0.95 }):Play()
+      task.delay(0.2, function() self.Root.Visible = false self.MinimizeScale.Scale = 1 end)
+    else
+      self.MinimizeScale.Scale = 0.95
+      self.Root.Visible = true
+      TweenService:Create(self.MinimizeScale, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+    end
     if not MinimizeNotif then MinimizeNotif = true local key = Lib.MinimizeKeybind and Lib.MinimizeKeybind.Value or Lib.MinimizeKey.Name Lib:Notify({ Title = "Interface", Content = "Press " .. key .. " to toggle the interface.", Duration = 6 }) end
   end
   function Window:Destroy() if getLibrary().UseAcrylic and self.AcrylicPaint.Model then self.AcrylicPaint.Model:Destroy() end self.Root:Destroy() end
@@ -1971,7 +2146,7 @@ local function BuildWindow(Config)
   end
   TabModule:Init(Window)
   function Window:AddTab(tabCfg) return TabModule:New(tabCfg.Title, tabCfg.Icon, Window.TabHolder) end
-  function Window:SelectTab(tab) TabModule:SelectTab(1) end
+  function Window:SelectTab(tabIdx) TabModule:SelectTab(tabIdx or 1) end
   Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function() LastVal = TabModule:GetCurrentTabPos() + 16 LastTime = 0 Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos())) end)
   return Window
 end
@@ -2097,7 +2272,11 @@ local function AddButton(self, idx, cfg)
   local arrow = Creator.New("ImageLabel", {
     Image = "rbxassetid://10709791437", Size = UDim2.fromOffset(16,16), AnchorPoint = Vector2.new(1,0.5), Position = UDim2.new(1,-10,0.5,0), BackgroundTransparency = 1, Parent = el.Frame, ThemeTag = { ImageColor3 = "Text" },
   })
-  Creator.AddSignal(el.Frame.MouseButton1Click, function() self.Library:SafeCallback(cfg.Callback) end)
+  el.Frame.ClipsDescendants = true
+  Creator.AddSignal(el.Frame.MouseButton1Click, function()
+    Creator.CreateRipple(el.Frame)
+    self.Library:SafeCallback(cfg.Callback)
+  end)
   return el
 end
 
@@ -2770,6 +2949,198 @@ local function AddColorpicker(self, idx, cfg)
   return Colorpicker
 end
 Elements.AddColorpicker = AddColorpicker
+
+-- ============ SaveManager ============
+local SaveManager = { Folder = "FluentSettings", IgnoreThemeSettings = {} }
+SaveManager.Parser = { encode = function(t) return game:GetService("HttpService"):JSONEncode(t) end, decode = function(s) return game:GetService("HttpService"):JSONDecode(s) end }
+
+do
+  local hasFS = pcall(function() return readfile and writefile and isfolder and makefolder and listfiles end)
+  if not hasFS then
+    function SaveManager:SetFolder() end
+    function SaveManager:SetIgnoreIndexes() end
+    function SaveManager:Save() end
+    function SaveManager:Load() end
+    function SaveManager:Delete() end
+    function SaveManager:GetSaves() return {} end
+    function SaveManager:BuildSaveSection() end
+    function SaveManager:LoadAutoloadConfig() end
+    function SaveManager:SetLibrary() end
+  else
+    function SaveManager:SetFolder(folder)
+      self.Folder = folder
+      if not isfolder(folder) then makefolder(folder) end
+    end
+
+    function SaveManager:SetIgnoreIndexes(list)
+      for _, key in next, list do self.IgnoreThemeSettings[key] = true end
+    end
+
+    function SaveManager:Save(name)
+      local data = {}
+      for idx, option in next, Library.Options do
+        if not self.IgnoreThemeSettings[idx] and option.Type then
+          if option.Type == "Toggle" then data[idx] = { type = "Toggle", value = option.Value }
+          elseif option.Type == "Slider" then data[idx] = { type = "Slider", value = option.Value }
+          elseif option.Type == "Input" then data[idx] = { type = "Input", value = option.Value }
+          elseif option.Type == "Keybind" then data[idx] = { type = "Keybind", value = option.Value, mode = option.Mode }
+          elseif option.Type == "Dropdown" then data[idx] = { type = "Dropdown", value = option.Value, multi = option.Multi }
+          elseif option.Type == "Colorpicker" then
+            data[idx] = { type = "Colorpicker", value = { option.Hue, option.Sat, option.Vib }, transparency = option.Transparency }
+          end
+        end
+      end
+      local path = self.Folder .. "/" .. name .. ".json"
+      writefile(path, self.Parser.encode(data))
+    end
+
+    function SaveManager:Load(name)
+      local path = self.Folder .. "/" .. name .. ".json"
+      if not isfile(path) then Library:Notify({ Title = "Config", Content = "Config not found: " .. name, Duration = 3 }) return end
+      local ok, data = pcall(function() return self.Parser.decode(readfile(path)) end)
+      if not ok then Library:Notify({ Title = "Config", Content = "Failed to load config.", Duration = 3 }) return end
+      for idx, entry in next, data do
+        local option = Library.Options[idx]
+        if option then
+          pcall(function()
+            if entry.type == "Toggle" then option:SetValue(entry.value)
+            elseif entry.type == "Slider" then option:SetValue(entry.value)
+            elseif entry.type == "Input" then option:SetValue(entry.value)
+            elseif entry.type == "Keybind" then option:SetValue(entry.value, entry.mode)
+            elseif entry.type == "Dropdown" then option:SetValue(entry.value)
+            elseif entry.type == "Colorpicker" then option:SetValue(entry.value, entry.transparency)
+            end
+          end)
+        end
+      end
+      Library:Notify({ Title = "Config", Content = "Loaded: " .. name, Duration = 3 })
+    end
+
+    function SaveManager:Delete(name)
+      local path = self.Folder .. "/" .. name .. ".json"
+      if isfile(path) then delfile(path) Library:Notify({ Title = "Config", Content = "Deleted: " .. name, Duration = 3 }) end
+    end
+
+    function SaveManager:GetSaves()
+      if not isfolder(self.Folder) then return {} end
+      local list = {}
+      for _, f in next, listfiles(self.Folder) do
+        if f:sub(-5) == ".json" then
+          local name = f:match("([^/\\]+)%.json$")
+          if name then table.insert(list, name) end
+        end
+      end
+      return list
+    end
+
+    function SaveManager:LoadAutoloadConfig()
+      local path = self.Folder .. "/_autoload.txt"
+      if isfile(path) then
+        local name = readfile(path):match("^%s*(.-)%s*$")
+        if name and name ~= "" then self:Load(name) end
+      end
+    end
+
+    function SaveManager:SetLibrary(lib)
+      Library = lib or Library
+    end
+
+    function SaveManager:BuildSaveSection(tab)
+      assert(tab, "SaveManager:BuildSaveSection - Missing tab")
+      local sec = tab:AddSection("Configuration")
+
+      sec:AddInput("sm_name", { Title = "Config Name", Placeholder = "my_config", Default = "" })
+      sec:AddDropdown("sm_list", { Title = "Config List", Values = self:GetSaves(), Default = nil, AllowNull = true })
+
+      sec:AddButton("sm_save", { Title = "Save Config", Description = "Save current settings", Callback = function()
+        local name = Library.Options["sm_name"] and Library.Options["sm_name"].Value or ""
+        if name == "" then Library:Notify({ Title = "Config", Content = "Enter a name first.", Duration = 3 }) return end
+        self:Save(name)
+        Library:Notify({ Title = "Config", Content = "Saved: " .. name, Duration = 3 })
+        Library.Options["sm_list"]:SetValues(self:GetSaves())
+      end })
+
+      sec:AddButton("sm_load", { Title = "Load Config", Description = "Load selected config", Callback = function()
+        local sel = Library.Options["sm_list"] and Library.Options["sm_list"].Value
+        if not sel or sel == "" then Library:Notify({ Title = "Config", Content = "Select a config first.", Duration = 3 }) return end
+        self:Load(sel)
+      end })
+
+      sec:AddButton("sm_delete", { Title = "Delete Config", Description = "Delete selected config", Callback = function()
+        local sel = Library.Options["sm_list"] and Library.Options["sm_list"].Value
+        if not sel or sel == "" then return end
+        self:Delete(sel)
+        Library.Options["sm_list"]:SetValues(self:GetSaves())
+      end })
+
+      sec:AddButton("sm_refresh", { Title = "Refresh List", Callback = function()
+        Library.Options["sm_list"]:SetValues(self:GetSaves())
+      end })
+
+      sec:AddToggle("sm_autoload", { Title = "Auto-load on start", Default = false, Callback = function(v)
+        if v then
+          local name = Library.Options["sm_list"] and Library.Options["sm_list"].Value
+          if name and name ~= "" then
+            writefile(self.Folder .. "/_autoload.txt", name)
+            Library:Notify({ Title = "Config", Content = "Auto-load set to: " .. name, Duration = 3 })
+          end
+        else
+          pcall(function() if isfile(self.Folder .. "/_autoload.txt") then delfile(self.Folder .. "/_autoload.txt") end end)
+        end
+      end })
+    end
+  end
+end
+Library.SaveManager = SaveManager
+
+-- ============ InterfaceManager ============
+local InterfaceManager = {}
+
+function InterfaceManager:SetFolder(folder)
+  self.Folder = folder
+  pcall(function() if not isfolder(folder) then makefolder(folder) end end)
+end
+
+function InterfaceManager:SetLibrary(lib) Library = lib or Library end
+
+function InterfaceManager:BuildInterfaceSection(tab)
+  assert(tab, "InterfaceManager:BuildInterfaceSection - Missing tab")
+  local sec = tab:AddSection("Interface")
+
+  sec:AddDropdown("if_theme", {
+    Title = "Theme",
+    Description = "Select a visual theme",
+    Values = Library.Themes,
+    Default = Library.Theme,
+    Callback = function(v) Library:SetTheme(v) end,
+  })
+
+  sec:AddToggle("if_acrylic", {
+    Title = "Acrylic Blur",
+    Description = "Enable background blur effect",
+    Default = Library.Acrylic or false,
+    Callback = function(v) Library:ToggleAcrylic(v) end,
+  })
+
+  sec:AddToggle("if_transparency", {
+    Title = "Transparency",
+    Description = "Enable background transparency",
+    Default = Library.Transparency or true,
+    Callback = function(v) Library:ToggleTransparency(v) end,
+  })
+
+  sec:AddKeybind("if_minkey", {
+    Title = "Minimize Key",
+    Description = "Keybind to toggle window",
+    Default = Library.MinimizeKey and Library.MinimizeKey.Name or "LeftControl",
+    Callback = function() end,
+    ChangedCallback = function(key)
+      Library.MinimizeKeybind = Library.Options["if_minkey"]
+    end,
+  })
+end
+
+Library.InterfaceManager = InterfaceManager
 
 if getgenv then
   getgenv().Fluent = Library
