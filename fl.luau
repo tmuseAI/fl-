@@ -669,27 +669,22 @@ local function CreateRipple(parent)
   local absPos = parent.AbsolutePosition
   local absSize = parent.AbsoluteSize
   local mx, my = Mouse.X - absPos.X, Mouse.Y - absPos.Y
-  local maxDist = math.max(
-    math.sqrt(mx^2 + my^2),
-    math.sqrt((absSize.X - mx)^2 + my^2),
-    math.sqrt(mx^2 + (absSize.Y - my)^2),
-    math.sqrt((absSize.X - mx)^2 + (absSize.Y - my)^2)
-  ) * 2
+  local maxDist = math.max(absSize.X, absSize.Y) * 1.5
+  local accentColor = Creator.GetThemeProperty("Accent")
   local ripple = Creator.New("Frame", {
     Position = UDim2.fromOffset(mx, my),
     AnchorPoint = Vector2.new(0.5, 0.5),
     Size = UDim2.fromOffset(0, 0),
-    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-    BackgroundTransparency = 0.75,
+    BackgroundColor3 = accentColor,
+    BackgroundTransparency = 0.7,
     Parent = parent,
     ZIndex = 99,
   }, {
     Creator.New("UICorner", { CornerRadius = UDim.new(1, 0) }),
   })
-  local ti = TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
-  local tween1 = TweenService:Create(ripple, ti, { Size = UDim2.fromOffset(maxDist, maxDist), BackgroundTransparency = 1 })
-  tween1:Play()
-  tween1.Completed:Connect(function() ripple:Destroy() end)
+  local ti = TweenInfo.new(0.45, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+  TweenService:Create(ripple, ti, { Size = UDim2.fromOffset(maxDist, maxDist), BackgroundTransparency = 1 }):Play()
+  task.delay(0.5, function() pcall(function() ripple:Destroy() end) end)
 end
 Creator.CreateRipple = CreateRipple
 
@@ -1517,95 +1512,45 @@ local Icons = {
   },
 }
 
--- ============ Acrylic ============
-local function mapVal(v, inMin, inMax, outMin, outMax)
-  return (v - inMin) * (outMax - outMin) / (inMax - inMin) + outMin
-end
-local function viewportPointToWorld(loc, dist)
-  local ray = Camera:ScreenPointToRay(loc.X, loc.Y)
-  return ray.Origin + ray.Direction * dist
-end
-local function getOffset()
-  return mapVal(Camera.ViewportSize.Y, 0, 2560, 8, 56)
-end
-local function createAcrylicPart()
-  return Creator.New("Part", {
-    Name = "Body", Color = Color3.new(0,0,0), Material = Enum.Material.Glass, Size = Vector3.new(1,1,0),
-    Anchored = true, CanCollide = false, Locked = true, CastShadow = false, Transparency = 0.98,
-  }, { Creator.New("SpecialMesh", { MeshType = Enum.MeshType.Brick, Offset = Vector3.new(0,0,-0.000001) }) })
-end
-local function createAcrylicBlur(distance)
-  distance = distance or 0.001
-  local positions = { topLeft = Vector2.new(), topRight = Vector2.new(), bottomRight = Vector2.new() }
-  local model = createAcrylicPart()
-  model.Parent = Camera or workspace
-  local cleanups = {}
-  local function updatePos(sz, pos) positions.topLeft = pos positions.topRight = pos + Vector2.new(sz.X,0) positions.bottomRight = pos + sz end
-  local function render()
-    local cam = Camera and Camera.CFrame or CFrame.new()
-    local tl = viewportPointToWorld(positions.topLeft, distance)
-    local tr = viewportPointToWorld(positions.topRight, distance)
-    local br = viewportPointToWorld(positions.bottomRight, distance)
-    model.CFrame = CFrame.fromMatrix((tl + br) / 2, cam.XVector, cam.YVector, cam.ZVector)
-    model.Mesh.Scale = Vector3.new((tr - tl).Magnitude, (tr - br).Magnitude, 0)
-  end
-  local function onChange(rbx)
-    local off = getOffset()
-    updatePos(rbx.AbsoluteSize - Vector2.new(off, off), rbx.AbsolutePosition + Vector2.new(off/2, off/2))
-    task.spawn(render)
-  end
-  if Camera then
-    table.insert(cleanups, Camera:GetPropertyChangedSignal("CFrame"):Connect(render))
-    table.insert(cleanups, Camera:GetPropertyChangedSignal("ViewportSize"):Connect(render))
-    table.insert(cleanups, Camera:GetPropertyChangedSignal("FieldOfView"):Connect(render))
-    task.spawn(render)
-  end
-  model.Destroying:Connect(function() for _, c in pairs(cleanups) do pcall(function() c:Disconnect() end) end end)
-  return onChange, model
-end
+-- ============ Glass Paint (lightweight glassmorphism, replaces heavy 3D acrylic) ============
 local Acrylic = {}
-function Acrylic.init()
-  local baseEffect = Instance.new("DepthOfFieldEffect")
-  baseEffect.FarIntensity = 0 baseEffect.InFocusRadius = 0.1 baseEffect.NearIntensity = 1
-  local depthOfFieldDefaults = {}
-  function Acrylic.Enable()
-    for _, e in pairs(depthOfFieldDefaults) do e.Enabled = false end
-    baseEffect.Parent = Lighting
-  end
-  function Acrylic.Disable()
-    for _, e in pairs(depthOfFieldDefaults) do e.Enabled = e.enabled end
-    baseEffect.Parent = nil
-  end
-  local function register(obj) if obj:IsA("DepthOfFieldEffect") then depthOfFieldDefaults[obj] = { enabled = obj.Enabled } end end
-  for _, c in pairs(Lighting:GetChildren()) do register(c) end
-  if Camera then for _, c in pairs(Camera:GetChildren()) do register(c) end end
-  Acrylic.Enable()
-end
+function Acrylic.init() end
+function Acrylic.Enable() end
+function Acrylic.Disable() end
 function Acrylic.AcrylicPaint()
   local New = Creator.New
-  local frame = New("Frame", {
-    Size = UDim2.fromScale(1,1), BackgroundTransparency = 0.9, BackgroundColor3 = Color3.fromRGB(255,255,255), BorderSizePixel = 0,
-  }, {
-    New("ImageLabel", { Image = "rbxassetid://8992230677", ScaleType = "Slice", SliceCenter = Rect.new(Vector2.new(99,99), Vector2.new(99,99)), AnchorPoint = Vector2.new(0.5,0.5), Size = UDim2.new(1,120,1,116), Position = UDim2.new(0.5,0,0.5,0), BackgroundTransparency = 1, ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 0.7 }),
-    New("UICorner", { CornerRadius = UDim.new(0,8) }),
-    New("Frame", { BackgroundTransparency = 0.45, Size = UDim2.fromScale(1,1), Name = "Background", ThemeTag = { BackgroundColor3 = "AcrylicMain" } }, { New("UICorner", { CornerRadius = UDim.new(0,8) }) }),
-    New("Frame", { BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.4, Size = UDim2.fromScale(1,1) }, { New("UICorner", { CornerRadius = UDim.new(0,8) }), New("UIGradient", { Rotation = 90, ThemeTag = { Color = "AcrylicGradient" } }) }),
-    New("ImageLabel", { Image = "rbxassetid://9968344105", ImageTransparency = 0.98, ScaleType = Enum.ScaleType.Tile, TileSize = UDim2.new(0,128,0,128), Size = UDim2.fromScale(1,1), BackgroundTransparency = 1 }, { New("UICorner", { CornerRadius = UDim.new(0,8) }) }),
-    New("ImageLabel", { Image = "rbxassetid://9968344227", ImageTransparency = 0.9, ScaleType = Enum.ScaleType.Tile, TileSize = UDim2.new(0,128,0,128), Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, ThemeTag = { ImageTransparency = "AcrylicNoise" } }, { New("UICorner", { CornerRadius = UDim.new(0,8) }) }),
-    New("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1,1), ZIndex = 2 }, { New("UICorner", { CornerRadius = UDim.new(0,8) }), New("UIStroke", { Transparency = 0.5, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }) }),
+  local shadow = New("ImageLabel", {
+    Image = "rbxassetid://8992230677", ScaleType = "Slice",
+    SliceCenter = Rect.new(Vector2.new(99,99), Vector2.new(99,99)),
+    AnchorPoint = Vector2.new(0.5,0.5), Size = UDim2.new(1,120,1,116),
+    Position = UDim2.new(0.5,0,0.5,0), BackgroundTransparency = 1,
+    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 0.55, ZIndex = 0,
   })
-  local paint = { Frame = frame, Model = frame }
-  if getLibrary() and getLibrary().UseAcrylic then
-    local onChange, model = createAcrylicBlur()
-    local comp = New("Frame", { BackgroundTransparency = 1, Size = UDim2.fromScale(1,1) })
-    comp.Parent = frame
-    Creator.AddSignal(comp:GetPropertyChangedSignal("AbsolutePosition"), function() onChange(comp) end)
-    Creator.AddSignal(comp:GetPropertyChangedSignal("AbsoluteSize"), function() onChange(comp) end)
-    paint.Model = model
-    paint.AddParent = function(parent) Creator.AddSignal(parent:GetPropertyChangedSignal("Visible"), function(vis) paint.SetVisibility(vis) end) end
-    paint.SetVisibility = function(vis) model.Transparency = vis and 0.98 or 1 end
-  end
-  return paint
+  local bg = New("Frame", {
+    BackgroundTransparency = 0.06, Size = UDim2.fromScale(1,1), Name = "Background",
+    ThemeTag = { BackgroundColor3 = "AcrylicMain" },
+  }, { New("UICorner", { CornerRadius = UDim.new(0,10) }) })
+  local gradient = New("Frame", {
+    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.88,
+    Size = UDim2.fromScale(1,1),
+  }, {
+    New("UICorner", { CornerRadius = UDim.new(0,10) }),
+    New("UIGradient", { Rotation = 145, ThemeTag = { Color = "AcrylicGradient" } }),
+  })
+  local topHighlight = New("Frame", {
+    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.92,
+    Size = UDim2.new(1,0,0,1), Position = UDim2.fromOffset(0,0),
+  })
+  local border = New("Frame", {
+    BackgroundTransparency = 1, Size = UDim2.fromScale(1,1), ZIndex = 2,
+  }, {
+    New("UICorner", { CornerRadius = UDim.new(0,10) }),
+    New("UIStroke", { Transparency = 0.7, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }),
+  })
+  local frame = New("Frame", {
+    Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, BorderSizePixel = 0,
+  }, { shadow, New("UICorner", { CornerRadius = UDim.new(0,10) }), bg, gradient, topHighlight, border })
+  return { Frame = frame, Model = frame, AddParent = function() end, SetVisibility = function() end }
 end
 
 -- ============ Assets ============
@@ -1631,17 +1576,22 @@ local function NewElement(Title, Desc, Parent, Hover)
     AutomaticSize = Enum.AutomaticSize.Y, Size = UDim2.new(1,0,0,14), ThemeTag = { TextColor3 = "SubText" },
   })
   el.LabelHolder = New("Frame", {
-    AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Position = UDim2.fromOffset(10,0), Size = UDim2.new(1,-28,0,0),
+    AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Position = UDim2.fromOffset(14,0), Size = UDim2.new(1,-32,0,0),
   }, {
     New("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, VerticalAlignment = Enum.VerticalAlignment.Center }),
     New("UIPadding", { PaddingBottom = UDim.new(0,13), PaddingTop = UDim.new(0,13) }),
     el.TitleLabel, el.DescLabel,
   })
-  el.Border = New("UIStroke", { Transparency = 0.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(0,0,0), ThemeTag = { Color = "ElementBorder" } })
+  el.AccentBar = New("Frame", {
+    Size = UDim2.new(0,3,1,-8), Position = UDim2.new(0,0,0,4), BackgroundTransparency = 0.3,
+    ThemeTag = { BackgroundColor3 = "Accent" },
+  }, { New("UICorner", { CornerRadius = UDim.new(0,2) }) })
+  el.Border = New("UIStroke", { Transparency = 0.7, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(0,0,0), ThemeTag = { Color = "ElementBorder" } })
   el.Frame = New("TextButton", {
-    Size = UDim2.new(1,0,0,0), BackgroundTransparency = 0.89, BackgroundColor3 = Color3.fromRGB(130,130,130), Parent = Parent,
-    AutomaticSize = Enum.AutomaticSize.Y, Text = "", LayoutOrder = 7, ThemeTag = { BackgroundColor3 = "Element", BackgroundTransparency = "ElementTransparency" },
-  }, { New("UICorner", { CornerRadius = UDim.new(0,4) }), el.Border, el.LabelHolder })
+    Size = UDim2.new(1,0,0,0), BackgroundTransparency = Creator.GetThemeProperty("ElementTransparency"), BackgroundColor3 = Color3.fromRGB(130,130,130), Parent = Parent,
+    AutomaticSize = Enum.AutomaticSize.Y, Text = "", LayoutOrder = 7, ClipsDescendants = true,
+    ThemeTag = { BackgroundColor3 = "Element", BackgroundTransparency = "ElementTransparency" },
+  }, { New("UICorner", { CornerRadius = UDim.new(0,7) }), el.Border, el.AccentBar, el.LabelHolder })
   function el:SetTitle(s) el.TitleLabel.Text = s end
   function el:SetDesc(s)
     if s == nil then s = "" end
@@ -1653,10 +1603,16 @@ local function NewElement(Title, Desc, Parent, Hover)
   el:SetDesc(Desc)
   if Hover then
     local motor, setT = Creator.SpringMotor(Creator.GetThemeProperty("ElementTransparency"), el.Frame, "BackgroundTransparency", false, true)
-    Creator.AddSignal(el.Frame.MouseEnter, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange")) end)
-    Creator.AddSignal(el.Frame.MouseLeave, function() setT(Creator.GetThemeProperty("ElementTransparency")) end)
+    Creator.AddSignal(el.Frame.MouseEnter, function()
+      setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04)
+      TweenService:Create(el.AccentBar, TweenInfo.new(0.2), { BackgroundTransparency = 0 }):Play()
+    end)
+    Creator.AddSignal(el.Frame.MouseLeave, function()
+      setT(Creator.GetThemeProperty("ElementTransparency"))
+      TweenService:Create(el.AccentBar, TweenInfo.new(0.2), { BackgroundTransparency = 0.3 }):Play()
+    end)
     Creator.AddSignal(el.Frame.MouseButton1Down, function() setT(Creator.GetThemeProperty("ElementTransparency") + Creator.GetThemeProperty("HoverChange")) end)
-    Creator.AddSignal(el.Frame.MouseButton1Up, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange")) end)
+    Creator.AddSignal(el.Frame.MouseButton1Up, function() setT(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange") - 0.04) end)
   end
   return el
 end
@@ -1750,21 +1706,26 @@ local function NewSection(Title, Parent)
   local New = Creator.New
   local sec = {}
   sec.Layout = New("UIListLayout", { Padding = UDim.new(0,5) })
-  sec.Container = New("Frame", { Size = UDim2.new(1,0,0,26), Position = UDim2.fromOffset(0,24), BackgroundTransparency = 1 }, { sec.Layout })
+  sec.Container = New("Frame", { Size = UDim2.new(1,0,0,0), Position = UDim2.fromOffset(0,30), BackgroundTransparency = 1 }, { sec.Layout })
+  local accentLine = New("Frame", {
+    Size = UDim2.new(0,28,0,2), Position = UDim2.fromOffset(0,22), BackgroundTransparency = 0.2,
+    ThemeTag = { BackgroundColor3 = "Accent" },
+  }, { New("UICorner", { CornerRadius = UDim.new(0,1) }) })
   sec.Root = New("Frame", {
-    BackgroundTransparency = 1, Size = UDim2.new(1,0,0,26), LayoutOrder = 7, Parent = Parent,
+    BackgroundTransparency = 1, Size = UDim2.new(1,0,0,30), LayoutOrder = 7, Parent = Parent,
   }, {
     New("TextLabel", {
       RichText = true, Text = Title, TextTransparency = 0,
       FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-      TextSize = 18, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1,-16,0,18), Position = UDim2.fromOffset(0,2),
+      TextSize = 16, TextXAlignment = "Left", TextYAlignment = "Center", Size = UDim2.new(1,-16,0,18), Position = UDim2.fromOffset(0,2),
       ThemeTag = { TextColor3 = "Text" },
     }),
+    accentLine,
     sec.Container,
   })
   Creator.AddSignal(sec.Layout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
     sec.Container.Size = UDim2.new(1,0,0,sec.Layout.AbsoluteContentSize.Y)
-    sec.Root.Size = UDim2.new(1,0,0,sec.Layout.AbsoluteContentSize.Y + 25)
+    sec.Root.Size = UDim2.new(1,0,0,sec.Layout.AbsoluteContentSize.Y + 32)
   end)
   return sec
 end
@@ -1813,8 +1774,12 @@ function Notification:New(cfg)
   }, {
     New("ImageLabel", { Image = Assets.Close, Size = UDim2.fromOffset(16,16), Position = UDim2.fromScale(0.5,0.5), AnchorPoint = Vector2.new(0.5,0.5), BackgroundTransparency = 1, ThemeTag = { ImageColor3 = "Text" } }),
   })
+  notif.AccentTop = New("Frame", {
+    Size = UDim2.new(1,-20,0,2), Position = UDim2.new(0,10,0,8), BackgroundTransparency = 0.15,
+    ThemeTag = { BackgroundColor3 = "Accent" },
+  }, { New("UICorner", { CornerRadius = UDim.new(0,1) }) })
   notif.Root = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1,0,1,0), Position = UDim2.fromScale(1,0) }, {
-    notif.AcrylicPaint.Frame, notif.Title, notif.CloseButton, notif.LabelHolder,
+    notif.AcrylicPaint.Frame, notif.AccentTop, notif.Title, notif.CloseButton, notif.LabelHolder,
   })
   if cfg.Content == "" then notif.ContentLabel.Visible = false end
   if cfg.SubContent == "" then notif.SubContentLabel.Visible = false end
@@ -2038,7 +2003,12 @@ local function BuildWindow(Config)
   local Resizing, ResizePos = false
   local MinimizeNotif = false
   local OldSizeX, OldSizeY
-  local Selector = New("Frame", { Size = UDim2.fromOffset(4,0), BackgroundColor3 = Color3.fromRGB(76,194,255), Position = UDim2.fromOffset(0,17), AnchorPoint = Vector2.new(0,0.5), ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(0,2) }) })
+  local SelectorGlow = New("ImageLabel", {
+    Image = "rbxassetid://12266946128", AnchorPoint = Vector2.new(0.5,0.5), Position = UDim2.fromScale(0.5,0.5),
+    Size = UDim2.fromOffset(16,20), BackgroundTransparency = 1, ImageTransparency = 0.55,
+    ThemeTag = { ImageColor3 = "Accent" },
+  })
+  local Selector = New("Frame", { Size = UDim2.fromOffset(4,0), BackgroundColor3 = Color3.fromRGB(76,194,255), Position = UDim2.fromOffset(0,17), AnchorPoint = Vector2.new(0,0.5), ThemeTag = { BackgroundColor3 = "Accent" } }, { New("UICorner", { CornerRadius = UDim.new(0,2) }), SelectorGlow })
   local ResizeStartFrame = New("Frame", { Size = UDim2.fromOffset(20,20), BackgroundTransparency = 1, Position = UDim2.new(1,-20,1,-20) })
   Window.TabHolder = New("ScrollingFrame", {
     Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, ScrollBarImageTransparency = 1, ScrollBarThickness = 0, BorderSizePixel = 0, CanvasSize = UDim2.fromScale(0,0), ScrollingDirection = Enum.ScrollingDirection.Y,
@@ -2312,9 +2282,10 @@ local function AddToggle(self, idx, cfg)
     t.Value = v
     Creator.OverrideTag(border, { Color = v and "Accent" or "ToggleSlider" })
     Creator.OverrideTag(circle, { ImageColor3 = v and "ToggleToggled" or "ToggleSlider" })
-    TweenService:Create(circle, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { Position = UDim2.new(0, v and 19 or 2, 0.5, 0) }):Play()
+    local posX = v and 19 or 2
+    TweenService:Create(circle, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Position = UDim2.new(0, posX, 0.5, 0), Size = UDim2.fromOffset(14,14) }):Play()
     TweenService:Create(slider, TweenInfo.new(0.25, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), { BackgroundTransparency = v and 0 or 1 }):Play()
-    circle.ImageTransparency = v and 0 or 0.5
+    TweenService:Create(circle, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { ImageTransparency = v and 0 or 0.5 }):Play()
     Lib:SafeCallback(t.Callback, t.Value)
     Lib:SafeCallback(t.Changed, t.Value)
   end
@@ -2957,7 +2928,7 @@ local SaveManager = { Folder = "FluentSettings", IgnoreThemeSettings = {} }
 SaveManager.Parser = { encode = function(t) return game:GetService("HttpService"):JSONEncode(t) end, decode = function(s) return game:GetService("HttpService"):JSONDecode(s) end }
 
 do
-  local hasFS = pcall(function() return readfile and writefile and isfolder and makefolder and listfiles end)
+  local hasFS = (type(readfile) == "function") and (type(writefile) == "function") and (type(isfolder) == "function") and (type(makefolder) == "function") and (type(listfiles) == "function")
   if not hasFS then
     function SaveManager:SetFolder() end
     function SaveManager:SetIgnoreIndexes() end
@@ -2965,7 +2936,12 @@ do
     function SaveManager:Load() end
     function SaveManager:Delete() end
     function SaveManager:GetSaves() return {} end
-    function SaveManager:BuildSaveSection() end
+    function SaveManager:BuildSaveSection(tab)
+      if tab then
+        local sec = tab:AddSection("Configuration")
+        sec:AddParagraph("sm_noFS", { Title = "Save/Load", Content = "File system not available in this executor." })
+      end
+    end
     function SaveManager:LoadAutoloadConfig() end
     function SaveManager:SetLibrary() end
   else
