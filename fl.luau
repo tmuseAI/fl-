@@ -1524,14 +1524,14 @@ function Acrylic.AcrylicPaint()
     SliceCenter = Rect.new(Vector2.new(99,99), Vector2.new(99,99)),
     AnchorPoint = Vector2.new(0.5,0.5), Size = UDim2.new(1,80,1,76),
     Position = UDim2.new(0.5,0,0.5,4), BackgroundTransparency = 1,
-    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 0.4, ZIndex = 0,
+    ImageColor3 = Color3.fromRGB(0,0,0), ImageTransparency = 1, ZIndex = 0,
   })
   local bg = New("Frame", {
     BackgroundTransparency = 0.02, Size = UDim2.fromScale(1,1), Name = "Background",
     ThemeTag = { BackgroundColor3 = "AcrylicMain" },
   }, { New("UICorner", { CornerRadius = UDim.new(0,12) }) })
   local gradient = New("Frame", {
-    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 0.92,
+    BackgroundColor3 = Color3.fromRGB(255,255,255), BackgroundTransparency = 1,
     Size = UDim2.fromScale(1,1),
   }, {
     New("UICorner", { CornerRadius = UDim.new(0,12) }),
@@ -1541,7 +1541,7 @@ function Acrylic.AcrylicPaint()
     BackgroundTransparency = 1, Size = UDim2.fromScale(1,1), ZIndex = 2,
   }, {
     New("UICorner", { CornerRadius = UDim.new(0,12) }),
-    New("UIStroke", { Transparency = 0.75, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }),
+    New("UIStroke", { Transparency = 1, Thickness = 1, ThemeTag = { Color = "AcrylicBorder" } }),
   })
   local frame = New("Frame", {
     Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, BorderSizePixel = 0,
@@ -1999,9 +1999,13 @@ local function BuildWindow(Config)
     Size = UDim2.new(0,200,0,22), Position = UDim2.fromOffset(Window.TabWidth + 26, 56), BackgroundTransparency = 1, ThemeTag = { TextColor3 = "Text" },
   })
   local searchIconId = (Icons and Icons.assets and Icons.assets["lucide-search"]) or "rbxassetid://10734950309"
+  local searchIconWrap = New("Frame", {
+    Size = UDim2.fromOffset(28, 30), Position = UDim2.fromOffset(0, 0),
+    BackgroundTransparency = 1, ClipsDescendants = false,
+  })
   Window.SearchIcon = New("ImageLabel", {
-    Image = searchIconId, Size = UDim2.fromOffset(14,14),
-    AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 8, 0.5, 0),
+    Image = searchIconId, Size = UDim2.fromOffset(14, 14),
+    AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
     BackgroundTransparency = 1, ImageTransparency = 0.4,
     ThemeTag = { ImageColor3 = "SubText" },
   })
@@ -2016,8 +2020,9 @@ local function BuildWindow(Config)
     New("UICorner", { CornerRadius = UDim.new(0,8) }),
     New("UIStroke", { Name = "SearchStroke", Transparency = 0.85, ThemeTag = { Color = "ElementBorder" } }),
     New("UIPadding", { PaddingLeft = UDim.new(0,28) }),
-    Window.SearchIcon,
+    searchIconWrap,
   })
+  Window.SearchIcon.Parent = searchIconWrap
   local searchStroke = Window.SearchBox:FindFirstChild("SearchStroke")
   Creator.AddSignal(Window.SearchBox.Focused, function()
     if searchStroke then TweenService:Create(searchStroke, TweenInfo.new(0.2), { Transparency = 0.5 }):Play() end
