@@ -1,9 +1,3 @@
---[[
-  Fluent Renew - Single file, no venv.
-  Source: https://github.com/dawid-scripts/Fluent (MIT)
-  Use: loadstring(readfile("fluent_renew.lua"))()
-]]
-
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -12,16 +6,13 @@ local TweenService = game:GetService("TweenService")
 local Camera = game:GetService("Workspace").CurrentCamera
 local Mouse = LocalPlayer:GetMouse()
 
--- Library ref for circular deps (Creator, Notification, Tab use it)
 local LibraryRef = {}
 local function getLibrary()
   return LibraryRef[1]
 end
 
--- Forward declaration (populated later, used by TabModule before definition)
 local Elements
 
--- ============ Flipper ============
 local Connection = {}
 Connection.__index = Connection
 function Connection.new(signal, handler)
@@ -227,7 +218,6 @@ local Flipper = {
   isMotor = isMotor,
 }
 
--- ============ Themes ============
 local ThemeDark = {
   Name = "Dark",
   Accent = Color3.fromRGB(96, 205, 255),
@@ -583,7 +573,6 @@ local Themes = {
   Sunset = ThemeSunset,
 }
 
--- ============ Creator ============
 local Creator = {
   Registry = {},
   Signals = {},
@@ -667,7 +656,6 @@ end
 
 Creator.CreateRipple = function() end
 
--- ============ Icons (820 Lucide icons) ============
 local Icons = {
   assets = {
     ["lucide-accessibility"] = "rbxassetid://10709751939",
@@ -1491,7 +1479,6 @@ local Icons = {
   },
 }
 
--- ============ Glass Paint (lightweight glassmorphism, replaces heavy 3D acrylic) ============
 local Acrylic = {}
 function Acrylic.init() end
 function Acrylic.Enable() end
@@ -1544,7 +1531,6 @@ function Acrylic.AcrylicPaint(opts)
   }
 end
 
--- ============ Assets ============
 local Assets = {
   Close = "rbxassetid://9886659671",
   Min = "rbxassetid://9886659276",
@@ -1552,7 +1538,6 @@ local Assets = {
   Restore = "rbxassetid://9886659001",
 }
 
--- ============ Component: Element ============
 local function NewElement(Title, Desc, Parent, Hover)
   local New = Creator.New
   local el = {}
@@ -1600,7 +1585,6 @@ local function NewElement(Title, Desc, Parent, Hover)
   return el
 end
 
--- ============ Component: Button (dialog) ============
 local function NewDialogButton(Theme, Parent, DialogCheck)
   local New = Creator.New
   DialogCheck = DialogCheck or false
@@ -1626,7 +1610,6 @@ local function NewDialogButton(Theme, Parent, DialogCheck)
   return btn
 end
 
--- ============ Component: Textbox ============
 local TextService = game:GetService("TextService")
 local function NewTextbox(Parent, Acrylic)
   Acrylic = Acrylic or false
@@ -1684,7 +1667,6 @@ local function NewTextbox(Parent, Acrylic)
   return tb
 end
 
--- ============ Component: Section ============
 local function NewSection(Title, Parent)
   local New = Creator.New
   local sec = {}
@@ -1708,7 +1690,6 @@ local function NewSection(Title, Parent)
   return sec
 end
 
--- ============ Notification ============
 local Notification = {}
 function Notification:Init(GUI)
   local New = Creator.New
@@ -1819,7 +1800,6 @@ function Notification:New(cfg)
   return notif
 end
 
--- ============ Dialog ============
 local DialogModule = { Window = nil }
 function DialogModule:Init(Window)
   self.Window = Window
@@ -1888,7 +1868,6 @@ function DialogModule:Create()
   return d
 end
 
--- ============ TitleBar ============
 local function NewTitleBar(cfg)
   local New = Creator.New
   local Lib = getLibrary()
@@ -1926,7 +1905,6 @@ local function NewTitleBar(cfg)
   return bar
 end
 
--- ============ Tab module ============
 local TabModule = { Window = nil, Tabs = {}, Containers = {}, SelectedTab = 0, TabCount = 0 }
 function TabModule:Init(Window) self.Window = Window return self end
 function TabModule:GetCurrentTabPos()
@@ -2002,7 +1980,6 @@ function TabModule:SelectTab(tabIdx)
   end)
 end
 
--- ============ Window builder ============
 local function BuildWindow(Config)
   local Lib = getLibrary()
   local New = Creator.New
@@ -2056,12 +2033,37 @@ local function BuildWindow(Config)
   local function doSearch(query)
     query = query:lower()
     Window.SearchQuery = query
+    if query == "" then
+      for _, entry in next, Window.SearchElements do entry.Frame.Visible = true end
+      for i, t in next, TabModule.Tabs do
+        t.Frame.Visible = true
+      end
+      if TabModule.SelectedTab then
+        for _, c in next, TabModule.Containers do c.Visible = false end
+        TabModule.Containers[TabModule.SelectedTab].Visible = true
+      end
+      return
+    end
     for _, entry in next, Window.SearchElements do
-      if query == "" then
-        entry.Frame.Visible = true
-      else
-        local match = entry.Title:lower():find(query, 1, true) or (entry.Desc and entry.Desc:lower():find(query, 1, true))
-        entry.Frame.Visible = not not match
+      local match = entry.Title:lower():find(query, 1, true) or (entry.Desc and entry.Desc:lower():find(query, 1, true))
+      entry.Frame.Visible = not not match
+    end
+    local containerHasResult = {}
+    for _, entry in next, Window.SearchElements do
+      if entry.Frame.Visible and entry.Container then
+        containerHasResult[entry.Container] = true
+      end
+    end
+    local firstTabWithResult = nil
+    for i, t in next, TabModule.Tabs do
+      local hasResult = containerHasResult[TabModule.Containers[i]] or false
+      t.Frame.Visible = hasResult
+      TabModule.Containers[i].Visible = hasResult
+      if hasResult and not firstTabWithResult then firstTabWithResult = i end
+    end
+    if TabModule.SelectedTab and not containerHasResult[TabModule.Containers[TabModule.SelectedTab]] then
+      if firstTabWithResult then
+        TabModule:SelectTab(firstTabWithResult)
       end
     end
   end
@@ -2184,7 +2186,6 @@ local function BuildWindow(Config)
   return Window
 end
 
--- ============ Build Library (init) ============
 local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local GUI = Creator.New("ScreenGui", {
   Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or game:GetService("CoreGui"),
@@ -2236,7 +2237,6 @@ function Library:GetIcon(name)
   return nil
 end
 
--- Elements table (AddButton, AddToggle, etc.) - populated below
 Elements = {}
 Elements.__index = Elements
 Library.Elements = Elements
@@ -2300,7 +2300,6 @@ function Library:Notify(cfg)
   return Notification:New(cfg)
 end
 
--- Element types: add minimal Button + Toggle + Paragraph so Elements work
 local function AddButton(self, idx, cfg)
   assert(cfg.Title, "Button - Missing Title")
   cfg.Callback = cfg.Callback or function() end
@@ -2327,7 +2326,6 @@ end
 Elements.AddButton = AddButton
 Elements.AddParagraph = AddParagraph
 
--- Element: Toggle
 local function AddToggle(self, idx, cfg)
   local Lib = self.Library
   assert(cfg.Title, "Toggle - Missing Title")
@@ -2359,7 +2357,6 @@ local function AddToggle(self, idx, cfg)
 end
 Elements.AddToggle = AddToggle
 
--- Element: Slider
 local function AddSlider(self, idx, cfg)
   local Lib = self.Library
   assert(cfg.Title, "Slider - Missing Title") assert(cfg.Default, "Slider - Missing default") assert(cfg.Min and cfg.Max and cfg.Rounding, "Slider - Missing min/max/rounding")
@@ -2400,7 +2397,6 @@ local function AddSlider(self, idx, cfg)
 end
 Elements.AddSlider = AddSlider
 
--- Element: Input
 local function AddInput(self, idx, cfg)
   local Lib = self.Library
   assert(cfg.Title, "Input - Missing Title")
@@ -2427,7 +2423,6 @@ local function AddInput(self, idx, cfg)
 end
 Elements.AddInput = AddInput
 
--- Element: Keybind
 local function AddKeybind(self, idx, cfg)
   local Lib = self.Library
   assert(cfg.Title, "KeyBind - Missing Title") assert(cfg.Default, "KeyBind - Missing default")
@@ -2482,7 +2477,6 @@ local function AddKeybind(self, idx, cfg)
 end
 Elements.AddKeybind = AddKeybind
 
--- Element: Dropdown (full from src/Elements/Dropdown.lua)
 local function AddDropdown(self, idx, cfg)
   local Library = self.Library
   local New = Creator.New
@@ -2728,7 +2722,6 @@ local function AddDropdown(self, idx, cfg)
 end
 Elements.AddDropdown = AddDropdown
 
--- Element: Colorpicker (full from src/Elements/Colorpicker.lua)
 local function AddColorpicker(self, idx, cfg)
   local Library = self.Library
   local New = Creator.New
@@ -2985,7 +2978,6 @@ local function AddColorpicker(self, idx, cfg)
 end
 Elements.AddColorpicker = AddColorpicker
 
--- ============ SaveManager ============
 local SaveManager = { Folder = "FluentSettings", IgnoreThemeSettings = {} }
 SaveManager.Parser = { encode = function(t) return game:GetService("HttpService"):JSONEncode(t) end, decode = function(s) return game:GetService("HttpService"):JSONDecode(s) end }
 
@@ -3133,7 +3125,6 @@ do
 end
 Library.SaveManager = SaveManager
 
--- ============ InterfaceManager ============
 local InterfaceManager = {}
 
 function InterfaceManager:SetFolder(folder)
