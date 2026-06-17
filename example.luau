@@ -1,4 +1,13 @@
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/tmuseAI/fl-/refs/heads/main/fl.luau"))()
+local LocalFluentPath = "C:\\lua\\fluent renew\\fluent_renew.lua"
+local ok, FluentSource = pcall(function()
+  if type(readfile) == "function" and type(isfile) == "function" and isfile(LocalFluentPath) then
+    return readfile(LocalFluentPath)
+  end
+end)
+if not ok or not FluentSource then
+  FluentSource = game:HttpGet("https://raw.githubusercontent.com/tmuseAI/fl-/refs/heads/main/fl.luau")
+end
+local Fluent = loadstring(FluentSource)()
 local SaveManager = Fluent.SaveManager
 local InterfaceManager = Fluent.InterfaceManager
 
@@ -12,9 +21,10 @@ local Window = Fluent:CreateWindow({
   Theme = "Dark",
   Acrylic = false,
   SelectorColor = Color3.fromRGB(60, 60, 70),
-  ShadowTransparency = 0.4,
-  GradientTransparency = 0.92,
-  BorderTransparency = 0.75,
+  ShadowTransparency = 0.7,
+  GradientTransparency = 0.4,
+  BorderTransparency = 0.5,
+  BackgroundTransparency = 0.45,
 })
 
 local Tab1 = Window:AddTab({ Title = "Main", Icon = "home" })
@@ -119,17 +129,40 @@ Sec3:AddColorpicker("sel_color", {
   Callback = function(v) Window:SetSelectorColor(v) end,
 })
 
+local SelectorWVC
+Sec3:AddToggle("wvc_selector", {
+  Title = "Animated Selector",
+  Description = "Soft moving role-style colors",
+  Default = true,
+  Callback = function(v)
+    if SelectorWVC then SelectorWVC:Destroy() SelectorWVC = nil end
+    if v then
+      SelectorWVC = Fluent:wvc(Window.Selector, {
+        Colors = {
+          Color3.fromRGB(82, 190, 255),
+          Color3.fromRGB(116, 138, 255),
+          Color3.fromRGB(154, 118, 255),
+          Color3.fromRGB(96, 205, 255),
+        },
+        Speed = 0.18,
+        Rotation = 90,
+        Offset = 0.45,
+      })
+    end
+  end,
+})
+
 Sec3:AddButton("frame_more", {
   Title = "Frame more transparent",
   Callback = function()
-    Window:SetFrameTransparency(0.6, 0.98, 0.9)
+    Window:SetFrameTransparency(0.8, 0.55, 0.65, 0.62)
   end,
 })
 
 Sec3:AddButton("frame_less", {
   Title = "Frame less transparent",
   Callback = function()
-    Window:SetFrameTransparency(0.4, 0.92, 0.75)
+    Window:SetFrameTransparency(0.7, 0.4, 0.5, 0.45)
   end,
 })
 
@@ -163,7 +196,8 @@ Sec3:AddButton("maximize", {
 
 local Tab4 = Window:AddTab({ Title = "Settings", Icon = "settings" })
 InterfaceManager:BuildInterfaceSection(Tab4)
-SaveManager:BuildSaveSection(Tab4)
+SaveManager:IgnoreThemeSettings()
+SaveManager:BuildConfigSection(Tab4)
 
 Window:SelectTab(1)
 SaveManager:LoadAutoloadConfig()
@@ -171,7 +205,7 @@ SaveManager:LoadAutoloadConfig()
 Fluent:Notify({
   Title = "Fluent Renew",
   Content = "Loaded, all API in example",
-  SubContent = "CreateWindow, AddTab, AddSection, AddButton, AddToggle, AddSlider, AddInput, AddKeybind, AddParagraph, AddDropdown, AddColorpicker, Dialog, SetTheme, SetSelectorColor, SetFrameTransparency, Minimize, Maximize, Notify, SaveManager, InterfaceManager",
+  SubContent = "CreateWindow, AddTab, AddSection, AddButton, AddToggle, AddSlider, AddInput, AddKeybind, AddParagraph, AddDropdown, AddColorpicker, Dialog, SetTheme, SetSelectorColor, SetFrameTransparency, wvc, Minimize, Maximize, Notify, SaveManager, InterfaceManager",
   Duration = 6,
 })
 
