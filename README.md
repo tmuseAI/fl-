@@ -1,13 +1,13 @@
 # Fluent Renew
 
-Fluent UI for Roblox. **Created for personal use** — use at your own discretion.
+Single-file Fluent UI for Roblox. **Created for personal use** — use at your own discretion.
 
 ---
 
 ## Load
 
 ```lua
-local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/tmuseAI/fl-/refs/heads/main/fl.luau"))()
+local Fluent = loadstring(game:HttpGet("YOUR_RAW_URL"))()
 local SaveManager = Fluent.SaveManager
 local InterfaceManager = Fluent.InterfaceManager
 ```
@@ -26,9 +26,10 @@ local Window = Fluent:CreateWindow({
   TabWidth = 160,
   Theme = "Dark",   -- Dark, Darker, Light, Aqua, Amethyst, Rose, Neon, Ocean, Sunset
   Acrylic = false,
-  ShadowTransparency = 0.4,
-  GradientTransparency = 0.92,
-  BorderTransparency = 0.75,
+  ShadowTransparency = 0.7,
+  GradientTransparency = 0.4,
+  BorderTransparency = 0.5,
+  BackgroundTransparency = 0.45,
   SelectorColor = Color3.fromRGB(60, 60, 70),
 })
 ```
@@ -61,7 +62,7 @@ local Window = Fluent:CreateWindow({
 - `Window:Maximize(bool)`
 - `Window:Dialog({ Title = "...", Content = "...", Buttons = {...} })`
 - `Window:SetSelectorColor(color)`
-- `Window:SetFrameTransparency(shadow, gradient, border)`
+- `Window:SetFrameTransparency(shadow, gradient, border, background?)`
 - `Window:Destroy()`
 
 **Library**
@@ -72,6 +73,7 @@ local Window = Fluent:CreateWindow({
 - `Fluent:ToggleAcrylic(bool)`
 - `Fluent:ToggleTransparency(bool)`
 - `Fluent:GetIcon(name)`
+- `Fluent:wvc(target, { Colors = {...}, Speed = 0.18, Rotation = 90 })` returns `{ Start, Stop, SetColors, Destroy }`
 
 **SaveManager**
 
@@ -89,5 +91,5 @@ local Window = Fluent:CreateWindow({
 
 ## Files
 
-- `fluent_renew.luau` — library
-- `example.luau` — full demo
+- `fluent_renew.lua` — library
+- `example.lua` — full demo
