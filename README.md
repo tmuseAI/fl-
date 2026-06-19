@@ -3,12 +3,12 @@
 Single-file Fluent UI for Roblox. **Created for personal use** — use at your own discretion.
 
 ---
-## Here's how it looks
+### Here's how it looks
 
-<p align="center">
-  <img src="1.png" width="48%" />
-  <img src="2.png" width="48%" />
-</p>
+![Preview 1](1.png)
+
+![Preview 2](2.png)
+
 ## Load
 
 ```lua
