@@ -3,12 +3,11 @@
 Single-file Fluent UI for Roblox. **Created for personal use** — use at your own discretion.
 
 ---
-### Here's how it looks
+## Here's how it looks
 
-![Preview 1](1.png)
-
-![Preview 2](2.png)
-
+| Preview 1 | Preview 2 |
+|-----------|-----------|
+| ![](1.png) | ![](2.png) |
 ## Load
 
 ```lua
