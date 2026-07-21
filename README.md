@@ -11,7 +11,7 @@ Single-file Fluent UI for Roblox. **Created for personal use** — use at your o
 ## Load
 
 ```lua
-local Fluent = loadstring(game:HttpGet("YOUR_RAW_URL"))()
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/tmuseAI/fl-/refs/heads/main/fl.luau"))()
 local SaveManager = Fluent.SaveManager
 local InterfaceManager = Fluent.InterfaceManager
 ```
